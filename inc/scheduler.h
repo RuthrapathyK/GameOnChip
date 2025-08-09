@@ -11,20 +11,6 @@
 void scheduler_Init(uint32_t useconds);
 
 /**
- * @brief The Function gets Exclusive access to the memory passed and decreaments it by 1
- * 
- * @param varObj Address of the variable for which value needs to be decreamented
- */
-void semTake(uint32_t * varObj);
-
-/**
- * @brief The Function gets Exclusive access to the memory passed and increaments it by 1
- * 
- * @param varObj Address of the variable for which value needs to be Increamented
- */
-void semGive(uint32_t * varObj);
-
-/**
  * @brief This function generates Scheduler delay
  * 
  */
@@ -38,5 +24,12 @@ void OS_delay(uint32_t mSec);
  * @param mSec 
  */
 void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec);
+
+/**
+ * @brief Returns the index of the currently running task.
+ * 
+ * @return uint8_t Index of the current task.
+ */
+uint8_t getCurrent_TaskIdx(void);
 
 #endif

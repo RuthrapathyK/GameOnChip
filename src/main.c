@@ -5,6 +5,8 @@
 #include "common.h"
 #include "scheduler.h"
 #include "tasks.h"
+#include "semaphores.h"
+#include "mutex.h"
 
 #define SCHEDULE_TIME_MS 10
 
@@ -21,19 +23,22 @@ uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
-uint32_t SemObject = 0;
+Semaphore_Type SemObject = 0;
+Mutex_Type MutexObject;
 
 void Task_A(void)
 {
   while(1){
 
-    semTake(&SemObject);
+    Mutex_Lock(&MutexObject);
 
     for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
       LED_RED_ON;
       LED_RED_OFF;
     }
+    OS_delay(1000);
+    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }
 }
@@ -42,22 +47,20 @@ void Task_B(void)
 {
   while(1){
 
-    semTake(&SemObject);
-    
+    Mutex_Lock(&MutexObject);
+
     for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
       LED_BLUE_ON;
       LED_BLUE_OFF;
     }
     OS_delay(1000);
+    Mutex_Unlock(&MutexObject);
   }
 }
 void Task_C(void)
 {
   while(1){
-
-    semGive(&SemObject);
-    semGive(&SemObject);
 
     for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
@@ -101,6 +104,9 @@ void main()
 
   /* Idle task should have the Least priority than any other tasks created */
   createTask(stack_IdleTask,IDLE_TASK_STACK_SIZE,&IdleTask, 255);
+
+  /* Initialize the Mutex */
+  Mutex_Init(&MutexObject);
 
   /* Initialize and start the Scheduler */
   scheduler_Init(SCHEDULE_TIME_US);
