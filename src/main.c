@@ -90,7 +90,7 @@ void main()
   createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B, 2);
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A, 1);
   
-  /* Set the Systick and PendSV to have Priority 1*/
+  /* Set the Systick and PendSV to have Priority 1 (ie.Scheduler should be the Least Priority interrupt and other interrupts are High Priority) */
   SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
   SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
 
