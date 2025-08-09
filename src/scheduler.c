@@ -5,6 +5,7 @@
 #include "common.h"
 #include "timer.h"
 #include "led.h"
+#include "semaphores.h"
 
 uint8_t CurTask_Idx = 0;
 static volatile bool f_schdInit = false;
@@ -73,24 +74,24 @@ void __attribute__ ((naked))SysTick_handler(void)
     // Derive the States of all Tasks
     for(schIter = 0; schIter < Max_SchTask; schIter++)
     {
-      if(PrioTask_Table[schIter].TaskState == Task_Sleep)
-      {
-        // Check if the task is blocked due to Synchronization Primitive
-        if(PrioTask_Table[schIter].syncPrim != NULL)
+        // Check if the task is blocked due to Semaphore
+        if(PrioTask_Table[schIter].TaskState == Task_Sleep_Semaphore)
         {
-          // Check if Synchrozination Resource is available
-          if(*((uint32_t *)PrioTask_Table[schIter].syncPrim) > 0)
-          {
-            PrioTask_Table[schIter].syncPrim = NULL;
-            PrioTask_Table[schIter].TaskState = Task_Ready;
-          }
+            // Check if Synchrozination Resource is available
+            if(((Semaphore_Type *)PrioTask_Table[schIter].taskSem)->Current_Count > 0)
+            {
+              PrioTask_Table[schIter].taskSem = NULL;
+              PrioTask_Table[schIter].TaskState = Task_Ready;
+            }
         }
         // Check if the task is blocked due to Delay
-        else if (PrioTask_Table[schIter].nxtSchedTime <= SystemTime_Count)
+        else if(PrioTask_Table[schIter].TaskState == Task_Sleep_Delay)
         {
-          PrioTask_Table[schIter].TaskState = Task_Ready;
+            if (PrioTask_Table[schIter].nxtSchedTime <= SystemTime_Count)
+            {
+              PrioTask_Table[schIter].TaskState = Task_Ready;
+            }
         }
-      }
     }
 
     // Choose which task to schedule based on priority. If no task is in Ready state then schedule idleTask
@@ -127,7 +128,7 @@ void OS_delay(uint32_t mSec)
   PrioTask_Table[CurTask_Idx].nxtSchedTime = getSystemTime() + mSec; 
   
   /* Change the task state to Sleep */
-  PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
+  PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep_Delay;
   
   /* Trigger the scheduler */
   SYSTICK_TRIGGER;
@@ -151,7 +152,7 @@ void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec)
   if(PrioTask_Table[CurTask_Idx].nxtSchedTime > getSystemTime())
   {
       /* Change the task state to Sleep */
-      PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
+      PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep_Delay;
       
       /* Trigger the scheduler */
       SYSTICK_TRIGGER;

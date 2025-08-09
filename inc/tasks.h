@@ -8,7 +8,9 @@
 
 typedef enum{
 	Task_Ready,
-	Task_Sleep,
+	Task_Sleep_Delay,
+	Task_Sleep_Mutex,
+	Task_Sleep_Semaphore
 }task_state_e;
 
 typedef struct {
@@ -18,7 +20,7 @@ typedef struct {
 	uint8_t priority;  // Priority of the task
 	void (*TaskfuncPtr)(void); // Address of the Application task function
 	uint32_t nxtSchedTime; // Timestamp to again make the task ready
-	void * syncPrim; //Loaded with Address of Synchronization Primitives to Unblock the Task
+	void * taskSem; //Loaded with Address of Semaphore to Unblock the Task
 	task_state_e TaskState; // Current State of the Task
 } Task_type;
 

@@ -7,20 +7,35 @@
 #include "tasks.h"
 #include "scheduler.h"
 
-/**
- * @brief The Function gets Exclusive access to the memory passed and decreaments it by 1
- * 
- * @param sem_obj Address of the variable for which value needs to be decreamented
- */
-void Sem_Take(uint32_t * sem_obj);
+
+typedef struct{
+    uint32_t Max_Count;     // Maximum Value the Semaphore can Hold
+    uint32_t Current_Count; // Current value of the Semaphore
+    bool isInitialised;     // Checks whether it is initialized or not
+}Semaphore_Type;
 
 /**
- * @brief The Function gets Exclusive access to the memory passed and increaments it by 1
- * 
- * @param sem_obj Address of the variable for which value needs to be Increamented
+ * @brief Initializes the semaphore object with the specified current and maximum count values.
+ *
+ * @param semaphore Pointer to the semaphore object to initialize.
+ * @param cur_count Initial value for the semaphore's current count.
+ * @param max_count Maximum value for the semaphore's count.
  */
-void Sem_Give(uint32_t * sem_obj);
+void Sem_Init(Semaphore_Type *semaphore, uint32_t max_count, uint32_t cur_count);
 
-typedef uint32_t Semaphore_Type;
+/**
+ * @brief Waits for a semaphore by attempting to decrement its count. If the count is zero, the calling task is put to sleep until the semaphore becomes available.
+ *
+ * @param semaphore Pointer to the semaphore object to wait on.
+ */
+void Sem_Wait(Semaphore_Type * semaphore);
+
+/**
+ * @brief Signals (releases) the semaphore, incrementing its count and potentially waking up waiting tasks.
+ *
+ * @param semaphore Pointer to the semaphore object to signal.
+ */
+void Sem_Signal(Semaphore_Type * semaphore);
+
 
 #endif

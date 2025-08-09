@@ -23,22 +23,18 @@ uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
-Semaphore_Type SemObject = 0;
+Semaphore_Type SemObject;
 Mutex_Type MutexObject;
 
 void Task_A(void)
 {
   while(1){
-
-    Mutex_Lock(&MutexObject);
-
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
+    // Sem_Wait(&SemObject);
+    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
     {
       LED_RED_ON;
       LED_RED_OFF;
     }
-    OS_delay(1000);
-    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }
 }
@@ -47,22 +43,23 @@ void Task_B(void)
 {
   while(1){
 
-    Mutex_Lock(&MutexObject);
+    // Sem_Wait(&SemObject);
 
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
+    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
     {
       LED_BLUE_ON;
       LED_BLUE_OFF;
     }
     OS_delay(1000);
-    Mutex_Unlock(&MutexObject);
   }
 }
 void Task_C(void)
 {
   while(1){
-
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
+    Sem_Signal(&SemObject);
+    Sem_Signal(&SemObject);
+    Sem_Signal(&SemObject);
+    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
     {
       LED_GREEN_ON;
       LED_GREEN_OFF;
@@ -107,6 +104,9 @@ void main()
 
   /* Initialize the Mutex */
   Mutex_Init(&MutexObject);
+
+  /* Initialize the Semaphore */
+  Sem_Init(&SemObject, 0, 2);
 
   /* Initialize and start the Scheduler */
   scheduler_Init(SCHEDULE_TIME_US);
