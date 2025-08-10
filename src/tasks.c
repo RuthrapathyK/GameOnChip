@@ -20,7 +20,7 @@ static void Init_TaskStack(Task_type * tsk)
   	tsk->stack_ptr = &(tsk->stack[tsk->stack_size]);
 
 	// Load Register value to the Stack
-	*(--tsk->stack_ptr) =  0x21000000;//xPSR
+	*(--tsk->stack_ptr) =  0x01000000;//xPSR
 	*(--tsk->stack_ptr) = (uint32_t)tsk->TaskfuncPtr; // Program Counter
 	*(--tsk->stack_ptr) = (uint32_t)tsk->TaskfuncPtr; // LR
 	*(--tsk->stack_ptr) = 0x00;//R12
@@ -89,7 +89,7 @@ static void Add_to_PrioTaskTable(Task_type * taskObject)
 void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio)
 {
 	// Check for valid Task Input parameters
-	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16) && (Max_SchTask < MAX_TASK_LIMIT));
+	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16) && (Max_SchTask < MAX_TASK_LIMIT) && (prio > 0));
 
 	// Load the Input parameters to Temporary Task Object
 	Task_type TaskObj = {
@@ -98,6 +98,8 @@ void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)()
 		.stack_size = stackSize_words,
 		.priority = prio,
 		.TaskfuncPtr = taskPtr,
+		.nxtSchedTime = 0,
+		.Task_Primitive = NULL,
 		.TaskState = Task_Ready
 	};
 

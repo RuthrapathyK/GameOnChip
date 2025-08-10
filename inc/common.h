@@ -13,10 +13,11 @@
 #define SYSTICK_CLEAR   SCB->INTCTRL |= 1<<25
 
 #define ASSERT(x) { \
-  if(!(x)) \
+  if(!(x)){ \
+    __asm("BKPT");\
     while(1){ \
-      __asm("BKPT");\
     }\
+  }\
 }
 
 

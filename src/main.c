@@ -5,6 +5,8 @@
 #include "common.h"
 #include "scheduler.h"
 #include "tasks.h"
+#include "semaphores.h"
+#include "mutex.h"
 
 #define SCHEDULE_TIME_MS 10
 
@@ -21,37 +23,43 @@ uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
+Semaphore_Type SemObject;
+Mutex_Type MutexObject;
+
 void Task_A(void)
 {
   while(1){
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_RED_ON;
-      LED_RED_OFF;
+      LED_RED_TOGGLE;
     }
-    OS_delay(1000);
+    Mutex_Unlock(&MutexObject);
+    OS_delay(1000); 
   }
 }
 
 void Task_B(void)
 {
   while(1){
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_BLUE_ON;
-      LED_BLUE_OFF;
+      LED_BLUE_TOGGLE;
     }
+    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }
 }
 void Task_C(void)
 {
   while(1){
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_GREEN_ON;
-      LED_GREEN_OFF;
+      LED_GREEN_TOGGLE;
     }
+    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }    
 }
@@ -78,7 +86,7 @@ void main()
   createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B, 2);
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A, 1);
   
-  /* Set the Systick and PendSV to have Priority 1*/
+  /* Set the Systick and PendSV to have Priority 1 (ie.Scheduler should be the Least Priority interrupt and other interrupts are High Priority) */
   SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
   SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
 
@@ -89,6 +97,12 @@ void main()
 
   /* Idle task should have the Least priority than any other tasks created */
   createTask(stack_IdleTask,IDLE_TASK_STACK_SIZE,&IdleTask, 255);
+
+  /* Initialize the Mutex */
+  Mutex_Init(&MutexObject);
+
+  /* Initialize the Semaphore */
+  Sem_Init(&SemObject, 0, 2);
 
   /* Initialize and start the Scheduler */
   scheduler_Init(SCHEDULE_TIME_US);

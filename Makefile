@@ -18,7 +18,7 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 VPATH = src;inc;build
 
 # Rules starts here
-build: clean main.o startup.o led.o timer.o button.o scheduler.o tasks.o out.elf out.bin out.hex out.s
+build: clean main.o startup.o led.o timer.o button.o scheduler.o tasks.o semaphores.o mutex.o out.elf out.bin out.hex out.s
 
 # Generate Object Files
 main.o: main.c
@@ -35,9 +35,13 @@ scheduler.o: scheduler.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
 tasks.o: tasks.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
+semaphores.o: semaphores.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
+mutex.o: mutex.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
 
 # Link the object files and generate .map file
-out.elf:$(BUILD_FOLDER)/main.o $(BUILD_FOLDER)/startup.o $(BUILD_FOLDER)/led.o $(BUILD_FOLDER)/timer.o $(BUILD_FOLDER)/button.o $(BUILD_FOLDER)/scheduler.o $(BUILD_FOLDER)/tasks.o
+out.elf:$(BUILD_FOLDER)/main.o $(BUILD_FOLDER)/startup.o $(BUILD_FOLDER)/led.o $(BUILD_FOLDER)/timer.o $(BUILD_FOLDER)/button.o $(BUILD_FOLDER)/scheduler.o $(BUILD_FOLDER)/tasks.o $(BUILD_FOLDER)/semaphores.o $(BUILD_FOLDER)/mutex.o
 	$(CC) -T linkerscript.ld -nostdlib $^ -o $(BUILD_DIR)$@ -Wl,-Map=$(BUILD_DIR)out.map 
 
 # Generate Binary executable
