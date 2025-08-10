@@ -29,41 +29,37 @@ Mutex_Type MutexObject;
 void Task_A(void)
 {
   while(1){
-    // Sem_Wait(&SemObject);
-    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_RED_ON;
-      LED_RED_OFF;
+      LED_RED_TOGGLE;
     }
-    OS_delay(1000);
+    Mutex_Unlock(&MutexObject);
+    OS_delay(1000); 
   }
 }
 
 void Task_B(void)
 {
   while(1){
-
-    // Sem_Wait(&SemObject);
-
-    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_BLUE_ON;
-      LED_BLUE_OFF;
+      LED_BLUE_TOGGLE;
     }
+    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }
 }
 void Task_C(void)
 {
   while(1){
-    Sem_Signal(&SemObject);
-    Sem_Signal(&SemObject);
-    Sem_Signal(&SemObject);
-    for(uint32_t iter = 0; iter <= 200 * 1000; iter++)
+    Mutex_Lock(&MutexObject);
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
-      LED_GREEN_ON;
-      LED_GREEN_OFF;
+      LED_GREEN_TOGGLE;
     }
+    Mutex_Unlock(&MutexObject);
     OS_delay(1000);
   }    
 }

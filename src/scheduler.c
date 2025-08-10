@@ -6,11 +6,15 @@
 #include "timer.h"
 #include "led.h"
 #include "semaphores.h"
+#include "mutex.h"
 
 uint8_t CurTask_Idx = 0;
 static volatile bool f_schdInit = false;
 uint32_t * tem_sp = 0;
 uint32_t schIter = 0;
+Task_type temp_Task;
+Mutex_Type *mutex = 0;
+uint32_t tmp_TaskIdx = 0;
 
 extern uint32_t Max_SchTask;
 extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
@@ -44,7 +48,7 @@ void scheduler_Init(uint32_t useconds)
 /**
  * @brief The algorithm for executing context-swtching and State saving between tasks
  *        The time taken for execution is ~9.5us
- * 
+ *      Note: This function shall not have any local variables or else Unpredictable behaviour will happen
  */
 void __attribute__ ((naked))SysTick_handler(void) 
 {
@@ -77,12 +81,19 @@ void __attribute__ ((naked))SysTick_handler(void)
         // Check if the task is blocked due to Semaphore
         if(PrioTask_Table[schIter].TaskState == Task_Sleep_Semaphore)
         {
+          if(((Semaphore_Type *)PrioTask_Table[schIter].Task_Primitive) != NULL)
+          {
             // Check if Synchrozination Resource is available
-            if(((Semaphore_Type *)PrioTask_Table[schIter].taskSem)->Current_Count > 0)
+            if(((Semaphore_Type *)PrioTask_Table[schIter].Task_Primitive)->Current_Count > 0)
             {
-              PrioTask_Table[schIter].taskSem = NULL;
+              PrioTask_Table[schIter].Task_Primitive = NULL;
               PrioTask_Table[schIter].TaskState = Task_Ready;
             }
+          }
+          else
+          {
+            ASSERT(0); // Asserted to check the Task should not be moved to Task_Sleep_Semaphore state without loading the Semaphore
+          }
         }
         // Check if the task is blocked due to Delay
         else if(PrioTask_Table[schIter].TaskState == Task_Sleep_Delay)
@@ -91,6 +102,67 @@ void __attribute__ ((naked))SysTick_handler(void)
             {
               PrioTask_Table[schIter].TaskState = Task_Ready;
             }
+        }
+        else if(PrioTask_Table[schIter].TaskState == Task_Sleep_Mutex)
+        {
+          if(PrioTask_Table[schIter].Task_Primitive != NULL)
+          {
+            mutex = (Mutex_Type *)PrioTask_Table[schIter].Task_Primitive;
+
+            // Check if Priority inheritance operation is triggered
+            if(mutex->PrioInherit_Status == Inherit_PI_BoostPriority)
+            {
+              // Change the Priority of Owner task to the High Priority Task which claims Mutex by Swapping
+              temp_Task = PrioTask_Table[mutex->Owner_TaskIdx];
+              PrioTask_Table[mutex->Owner_TaskIdx] = PrioTask_Table[mutex->HighPrio_TaskIdx];
+              PrioTask_Table[mutex->HighPrio_TaskIdx] = temp_Task;
+
+              // Update the Owner and High Priority Task Index
+              tmp_TaskIdx = mutex->Owner_TaskIdx;
+              mutex->Owner_TaskIdx = mutex->HighPrio_TaskIdx;
+              mutex->HighPrio_TaskIdx = tmp_TaskIdx;
+
+              // Change the status of the Priority Inheritance operation status
+              mutex->PrioInherit_Status = Inherit_PI_NoOperation;
+            }
+            else if(mutex->PrioInherit_Status == Inherit_UnBoost_Priority)
+            {
+              // Change the Priority of Owner task to its original Priority by Swapping
+              temp_Task = PrioTask_Table[mutex->Owner_TaskIdx];
+              PrioTask_Table[mutex->Owner_TaskIdx] = PrioTask_Table[mutex->HighPrio_TaskIdx];
+              PrioTask_Table[mutex->HighPrio_TaskIdx] = temp_Task;
+
+              // Update the Owner and High Priority Task Index
+              tmp_TaskIdx = mutex->Owner_TaskIdx;
+              mutex->Owner_TaskIdx = mutex->HighPrio_TaskIdx;
+              mutex->HighPrio_TaskIdx = tmp_TaskIdx;
+
+              // Change the status of the Priority Inheritance operation
+              mutex->PrioInherit_Status = Inherit_PI_NoOperation;
+
+              // Clear the Task_Primitive to NULL
+              PrioTask_Table[mutex->HighPrio_TaskIdx].Task_Primitive = NULL;
+              
+              // Change the Task State to Ready
+              PrioTask_Table[mutex->HighPrio_TaskIdx].TaskState = Task_Ready;
+
+              // ReInitialize the PriorityInheritance's status of the Mutex */
+              mutex->PrioInherit_Status = Inherit_No_PI;
+            }
+            // Check if the Mutex is in Unlocked state
+            else if(mutex->Mutex_State == Mutex_Unlocked)
+            {
+              // Clear the Task_Primitive to NULL
+              PrioTask_Table[schIter].Task_Primitive = NULL;
+
+              // Change the Task State to Ready
+              PrioTask_Table[schIter].TaskState = Task_Ready;
+            }
+          }
+          else
+          {
+            ASSERT(0); // Asserted to check the Task should not be moved to Task_Sleep_Mutex state without loading the Mutex
+          }
         }
     }
 

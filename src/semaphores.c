@@ -31,7 +31,7 @@ static void Sem_Take(uint32_t *current_count, Semaphore_Type *semaphore)
 __asm volatile("Sem_Sleep:"); // Start of assembly label and the following C code belongs to this
 
   /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
-  PrioTask_Table[getCurrent_TaskIdx()].taskSem = semaphore;
+  PrioTask_Table[getCurrent_TaskIdx()].Task_Primitive = semaphore;
 
   /* Change the task state to Sleep */
   PrioTask_Table[getCurrent_TaskIdx()].TaskState = Task_Sleep_Semaphore;
