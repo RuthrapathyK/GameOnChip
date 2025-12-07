@@ -6,7 +6,7 @@ void SPI_Init(void)
 {
     /* Enable Clock for SPI0 peripheral */
     SYSCTL->RCGCSSI |= 1<<0;
-    
+
     /* Configure Pins for SPI0 */
     Pin_Config(Port_PA, 2, PA2_SSI0CLK);
     Pin_Config(Port_PA, 3, PA3_SSI0FSS);
@@ -39,12 +39,55 @@ void SPI_Init(void)
     SSI0->CR1 |= (1<<1);
 }
 
-void SPI_Send(void)
+void SPI_Send(uint16_t *tx_buf, uint32_t len)
 {
-    /* Poll for the TX FIFO to be empty */
-    while(!((SSI0->SR) & 0x1))
-    ;
+    for(uint32_t iter = 0; iter < len; iter++)
+    {
+        /* Poll for the TX FIFO to be empty */
+        while(!((SSI0->SR) & 0x1))
+        ;
 
-    /* Write the Data to be transmitted */
-    SSI0->DR = 0xA5;
+        /* Write the Data to be transmitted */
+        SSI0->DR = tx_buf[iter];
+    }
+}
+
+void SPI_Receive(uint16_t *rx_buf, uint32_t len)
+{
+    for(uint32_t iter = 0; iter < len; iter++)
+    {
+        /* Poll for the TX FIFO to be empty */
+        while(!((SSI0->SR) & 0x1))
+        ;
+
+        /* Write the Dummy Data to be transmitted */
+        SSI0->DR = 0x00;
+
+        /* Poll for the RX FIFO to be non-empty */
+        while(!((SSI0->SR) & 0x1))
+        ;
+
+        /* Read the Data from Buffer */
+        rx_buf[iter] = SSI0->DR;
+    }
+}
+
+void SPI_Transaction(uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
+{
+    for(uint32_t iter = 0; iter < len; iter++)
+    {
+        /* Poll for the TX FIFO to be empty */
+        while(!((SSI0->SR) & 0x1))
+        ;
+
+        /* Write the Dummy Data to be transmitted */
+        SSI0->DR = tx_buf[iter];
+
+        /* Poll for the RX FIFO to be non-empty */
+        while(!((SSI0->SR) & 0x1))
+        ;
+
+        /* Read the Data from Buffer */
+        rx_buf[iter] = SSI0->DR;
+    }   
 }

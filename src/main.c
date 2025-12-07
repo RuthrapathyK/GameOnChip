@@ -4,7 +4,7 @@
 #include "common.h"
 #include "scheduler.h"
 #include "tasks.h"
-#include "spi.h"
+#include "app.h"
 
 #define SCHEDULE_TIME_MS 10
 
@@ -17,16 +17,6 @@
 uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
-
-void Task_A(void)
-{
-  SPI_Init();
-
-  while(1)
-  {
-    SPI_Send();
-  }
-}
 
 void IdleTask(void)
 {
