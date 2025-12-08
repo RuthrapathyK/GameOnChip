@@ -7,11 +7,9 @@ void SPI_Init(void)
     /* Enable Clock for SPI0 peripheral */
     SYSCTL->RCGCSSI |= 1<<0;
 
-    /* Configure Pins for SPI0 */
-    Pin_Config(Port_PA, 2, PA2_SSI0CLK);
-    Pin_Config(Port_PA, 3, PA3_SSI0FSS);
-    Pin_Config(Port_PA, 4, PA4_SSI0RX);
-    Pin_Config(Port_PA, 5, PA5_SSI0TX);
+    /* Wait till the SPI0 peropheral is ready */
+    while(!(SYSCTL->PRSSI & 0x01))
+    ;
 
     /* Disable the SPI0 module */
     SSI0->CR1 &= ~(1<<1);
@@ -48,8 +46,12 @@ void SPI_Send(uint16_t *tx_buf, uint32_t len)
         ;
 
         /* Write the Data to be transmitted */
-        SSI0->DR = tx_buf[iter];
+        SSI0->DR = tx_buf[iter];    
     }
+
+    /* Poll till SPI0 is Idle after Transmission */
+    while(((SSI0->SR >> 4) & 0x01))
+    ;
 }
 
 void SPI_Receive(uint16_t *rx_buf, uint32_t len)
@@ -70,6 +72,10 @@ void SPI_Receive(uint16_t *rx_buf, uint32_t len)
         /* Read the Data from Buffer */
         rx_buf[iter] = SSI0->DR;
     }
+
+    /* Poll till SPI0 is Idle after Transmission */
+    while(((SSI0->SR >> 4) & 0x01))
+    ;
 }
 
 void SPI_Transaction(uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
@@ -89,5 +95,9 @@ void SPI_Transaction(uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
 
         /* Read the Data from Buffer */
         rx_buf[iter] = SSI0->DR;
-    }   
+    } 
+    
+    /* Poll till SPI0 is Idle after Transmission */
+    while(((SSI0->SR >> 4) & 0x01))
+    ;
 }

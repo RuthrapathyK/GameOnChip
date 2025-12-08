@@ -8,7 +8,7 @@
  */
 
 #include "gpio.h"
-
+#include "pinconfig.h"
 /**
  * @brief Retrieves the base address of a GPIO port register structure.
  *
@@ -60,7 +60,7 @@ static GPIOA_Type * GPIO_getBase(uint8_t port)
  * and sets the initial pin state. Disables alternate functions for the pin.
  *
  * @param[in] portPin The GPIO pin to initialize (e.g., PA0, PB5, etc.)
- * @param[in] direction The direction of the pin (GPIO_Direction_DigitalOutput or GPIO_Direction_DigitalInput)
+ * @param[in] direction The direction of the pin (GPIO_DigitalOutput or GPIO_DigitalInput)
  * @param[in] defaultState The initial state of the pin (GPIO_State_OFF or GPIO_State_ON)
  *
  * @return None
@@ -88,7 +88,7 @@ void GPIO_Init(GPIO_PortPins_e portPin, GPIO_Direction_e direction, GPIO_State_e
     gpioBase->PCTL &= ~(0xFu << (pinDerived * 4));
 
     /* Set the Direction of GPIO */
-    if(direction == GPIO_Direction_DigitalOutput)
+    if(direction == GPIO_DigitalOutput)
         gpioBase->DIR |= (1u << pinDerived);
     else
         gpioBase->DIR &= ~(1u << pinDerived);
@@ -101,6 +101,9 @@ void GPIO_Init(GPIO_PortPins_e portPin, GPIO_Direction_e direction, GPIO_State_e
         GPIO_setPin(portPin);
     else
         GPIO_clearPin(portPin);
+
+    /* Change the PinMux Configuration - All GPIO mode is 0*/
+    Pin_Config(portDerived, pinDerived, 0);
 }
 
 /**

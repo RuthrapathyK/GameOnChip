@@ -14,8 +14,8 @@ typedef enum{
 }GPIO_PortPins_e;
 
 typedef enum{
-    GPIO_Direction_DigitalOutput,
-    GPIO_Direction_DigitalInput,
+    GPIO_DigitalOutput,
+    GPIO_DigitalInput,
     GPIO_Direction_Max
 }GPIO_Direction_e;
 
@@ -33,7 +33,7 @@ typedef enum{
  * and sets the initial pin state. Ensures the pin is in GPIO mode (not alternate function).
  *
  * @param[in] portPin The GPIO pin to initialize (e.g., PA0, PB5, etc.)
- * @param[in] direction The direction of the pin (GPIO_Direction_DigitalOutput or GPIO_Direction_DigitalInput)
+ * @param[in] direction The direction of the pin (GPIO_DigitalOutput or GPIO_DigitalInput)
  * @param[in] defaultState The initial state of the pin (GPIO_State_OFF or GPIO_State_ON)
  *
  * @return None
