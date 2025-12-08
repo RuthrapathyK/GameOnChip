@@ -27,10 +27,6 @@ void IdleTask(void)
 }
 void main()
 {
-  /* Initialize the LED */
-  LED_Init(LED_RED);
-  LED_Init(LED_BLUE);
-  LED_Init(LED_GREEN);
   TestPin_Init();
 
   /* Initialize the System Timer */
