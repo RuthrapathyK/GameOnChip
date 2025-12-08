@@ -149,6 +149,15 @@ void GPIO_clearPin(GPIO_PortPins_e portPin)
     gpioBase->DATA_Bits[1u << pinDerived] = 0x00;
 }
 
+/**
+ * @brief Toggles the current state of a GPIO pin.
+ *
+ * Inverts the current logic level of the specified output pin using XOR operation.
+ *
+ * @param[in] portPin The GPIO pin to toggle (e.g., PA0, PB5, etc.)
+ *
+ * @return None
+ */
 void GPIO_togglePin(GPIO_PortPins_e portPin)
 {
     GPIOA_Type * gpioBase = NULL;
@@ -163,6 +172,16 @@ void GPIO_togglePin(GPIO_PortPins_e portPin)
     gpioBase->DATA ^= (1<<pinDerived);
 }
 
+/**
+ * @brief Reads the current state of a GPIO pin.
+ *
+ * Returns the current logic level of the specified input or output pin, converting
+ * the hardware bit value to the GPIO_State_e enumeration.
+ *
+ * @param[in] portPin The GPIO pin to read (e.g., PA0, PB5, etc.)
+ *
+ * @return GPIO_State_e The current state of the pin (GPIO_State_OFF or GPIO_State_ON)
+ */
 uint8_t GPIO_getPinState(GPIO_PortPins_e portPin)
 {
     GPIOA_Type * gpioBase = NULL;
