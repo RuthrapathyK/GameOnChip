@@ -48,13 +48,19 @@ void Disp_Init(void)
     GPIO_Init(PE1, GPIO_DigitalOutput, 1);
     
     /* Initialize the DC/RS pin (Data/Command) */
-    GPIO_Init(PE2, GPIO_DigitalOutput, 1);   
+    GPIO_Init(PE2, GPIO_DigitalOutput, 1);
+    
+    /* Perform Hardware Reset of Display */
+    GPIO_clearPin(PE1);
+    OS_delay(20);
+    GPIO_setPin(PE1);
+    OS_delay(200);
 
 }
 
 void Disp_Run(void)
 {
-   tx_buffer[0] = 0x04;
+   tx_buffer[0] = 0x0A;
    
    /* Enable Chip Select */
    Disp_chipSelect(Disp_pinLow);
@@ -65,19 +71,11 @@ void Disp_Run(void)
    /* Send the Command */
    SPI_Send(tx_buffer, 1);
 
-//    /* Disable Chip Select */
-//    Disp_chipSelect(Disp_pinHigh);
-
-//    OS_delay(1);
-
-//    /* Enable Chip Select */
-//    Disp_chipSelect(Disp_pinLow);
-
-//    /* Set the Display to Data Mode*/
-//    Disp_dataCommand_Select(Disp_enableData);
+   /* Set the Display to Data Mode*/
+   Disp_dataCommand_Select(Disp_enableData);
    
    /* Get the Data from the Dispaly Unit */
-   SPI_Receive(rx_buffer, 4);
+   SPI_Receive(rx_buffer, 1);
 
    /* Disable Chip Select */
    Disp_chipSelect(Disp_pinHigh);

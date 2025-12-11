@@ -24,7 +24,7 @@ void SPI_Init(void)
     SSI0->CPSR = 2;
 
     /* Configure the Serial Clock rate of SPI0 module as 1MHz */
-    SSI0->CR0 |= 7 << 8;
+    SSI0->CR0 |= 79 << 8;
 
     /* Select Freescale mode with CPOL = 0 and CPHA = 0*/
     SSI0->CR0 &= ~(3<<4); // Frescale Mode
@@ -46,7 +46,7 @@ void SPI_Send(uint16_t *tx_buf, uint32_t len)
         ;
 
         /* Write the Data to be transmitted */
-        SSI0->DR = tx_buf[iter];    
+        SSI0->DR = tx_buf[iter];  
     }
 
     /* Poll till SPI0 is Idle after Transmission */
@@ -56,6 +56,9 @@ void SPI_Send(uint16_t *tx_buf, uint32_t len)
 
 void SPI_Receive(uint16_t *rx_buf, uint32_t len)
 {
+    /* Discard the already received value if any during previous transmission */
+    volatile uint16_t junk_val = SSI0->DR;
+
     for(uint32_t iter = 0; iter < len; iter++)
     {
         /* Poll for the TX FIFO to be empty */
@@ -66,7 +69,7 @@ void SPI_Receive(uint16_t *rx_buf, uint32_t len)
         SSI0->DR = 0x00;
 
         /* Poll for the RX FIFO to be non-empty */
-        while(!((SSI0->SR) & 0x1))
+        while(!((SSI0->SR >> 2) & 0x1))
         ;
 
         /* Read the Data from Buffer */
