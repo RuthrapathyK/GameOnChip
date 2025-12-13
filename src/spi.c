@@ -39,6 +39,9 @@ void SPI_Init(void)
 
 void SPI_Send(uint16_t *tx_buf, uint32_t len)
 {
+    /* Discard the already received value if any during previous transmission */
+    volatile uint16_t junk_val;
+
     for(uint32_t iter = 0; iter < len; iter++)
     {
         /* Poll for the TX FIFO to be empty */
@@ -46,7 +49,14 @@ void SPI_Send(uint16_t *tx_buf, uint32_t len)
         ;
 
         /* Write the Data to be transmitted */
-        SSI0->DR = tx_buf[iter];  
+        SSI0->DR = tx_buf[iter];
+        
+        /* Poll for the RX FIFO to be non-empty */
+        while(!((SSI0->SR >> 2) & 0x1))
+        ;
+
+        /* Discard the already received value if any during previous transmission */
+        junk_val = SSI0->DR;
     }
 
     /* Poll till SPI0 is Idle after Transmission */

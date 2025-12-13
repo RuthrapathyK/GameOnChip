@@ -18,6 +18,6 @@ typedef enum{
 void Disp_Init(void);
 void Disp_Run(void);
 void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint8_t rx_bitLen);
-void Disp_changeFrame_len(uint8_t frameBits);
+void Disp_writeReg(uint8_t cmd, uint16_t *tx_buf, uint8_t tx_bitLen);
 
 #endif

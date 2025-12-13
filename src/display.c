@@ -7,6 +7,7 @@
 uint16_t rx_buffer[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 uint16_t rx2_buffer[10]= {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 uint16_t rx3_buffer[10]= {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
+uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 
 static void Disp_chipSelect(Disp_PinState_e state)
 {
@@ -30,6 +31,102 @@ static void Disp_dataCommand_Select(Disp_cmdData_e flag)
             GPIO_clearPin(PE2);
       else
             GPIO_setPin(PE2);
+}
+
+void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint8_t rx_bitLen)
+{
+   uint16_t t_txBuf = cmd;
+   uint16_t t_rxBuf[10] = {0};  
+   uint8_t rx_ByteLen = 0;
+   uint8_t rx_frameBitLen = 0;
+
+   /* Enable Chip Select */
+   Disp_chipSelect(Disp_pinLow);
+
+   /* Set the Display to Command Mode*/
+   Disp_dataCommand_Select(Disp_enableCommand);
+
+   /* Send the Command */
+   SPI_Send(&t_txBuf, 1);
+
+   /* Set the Display to Data Mode*/
+   Disp_dataCommand_Select(Disp_enableData);
+   
+   /* Derive the SPI0 modules Frame Bit Length */
+   if(rx_bitLen > 8)
+      rx_frameBitLen = rx_bitLen + 1;
+   else
+      rx_frameBitLen = rx_bitLen;
+
+   /* Calculate the Number of Bytes from Bit Length */
+   rx_ByteLen  = rx_frameBitLen / 8;
+
+   if((rx_frameBitLen % 8) != 0)
+      rx_ByteLen = rx_ByteLen + 1;
+      
+   /* Get the Data from the Dispaly Unit */
+   SPI_Receive(t_rxBuf, rx_ByteLen);
+
+   /* Rearrage the received Bytes according to Bit Length */
+   if(rx_bitLen > 8)
+   {
+      for(uint8_t iter = 0; iter < rx_ByteLen - 1; iter++)
+      {
+         rx_buf[iter] = ((((t_rxBuf[iter] << 1) & 0xFE) | ((t_rxBuf[iter + 1] >> 7) & 0x01)) & 0xFF);
+      }
+   }
+   else
+   {
+       rx_buf[0] = t_rxBuf[0];
+   }
+
+   /* Disable Chip Select */
+   Disp_chipSelect(Disp_pinHigh);
+}
+
+void Disp_writeReg(uint8_t cmd, uint16_t *paramData_buf, uint8_t paramData_bitLen)
+{
+   uint16_t t_txBuf = cmd;
+   uint8_t tx_ByteLen = 0;
+
+   /* Enable Chip Select */
+   Disp_chipSelect(Disp_pinLow);
+
+   /* Set the Display to Command Mode*/
+   Disp_dataCommand_Select(Disp_enableCommand);
+
+   /* Send the Command */
+   SPI_Send(&t_txBuf, 1);
+
+   /* Disable Chip Select */
+   Disp_chipSelect(Disp_pinHigh);
+   
+   //OS_delay(1);
+
+      /* Check if teh Data or Command Parameter needs to be written */
+      if(paramData_bitLen > 0)
+      {
+            /* Enable Chip Select */
+            Disp_chipSelect(Disp_pinLow);
+
+            /* Set the Display to Command Mode*/
+            Disp_dataCommand_Select(Disp_enableData);
+
+            /* Calculate the Number of Bytes from Bit Length */
+            tx_ByteLen  = paramData_bitLen / 8;
+
+            if((paramData_bitLen % 8) != 0)
+                  tx_ByteLen = tx_ByteLen + 1;
+
+            /* Send the Parameter of the Command / Data to be written in Memory */
+            SPI_Send(paramData_buf, tx_ByteLen);
+
+            /* Disable Chip Select */
+            Disp_chipSelect(Disp_pinHigh);
+
+            /* Set the Display to Data Mode*/
+            Disp_dataCommand_Select(Disp_enableData);
+      }
 }
 
 void Disp_Init(void)
@@ -60,84 +157,13 @@ void Disp_Init(void)
 
 void Disp_Run(void)
 {
-      Disp_readReg(0xDA, rx_buffer, 8);
-      Disp_readReg(0xDB, &rx_buffer[1], 8);
-      Disp_readReg(0xDC, &rx_buffer[2], 8);
-}
-
-void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint8_t rx_bitLen)
-{
-   uint16_t t_txBuf = cmd;
-   uint16_t t_rxBuf[10] = {0};  
-   uint8_t rx_ByteLen = 0;
-   uint8_t rx_frameBitLen = 0;
-
-   /* Change the SPI0 modules Frame Bit Length to 8 bits for command */
-   //Disp_changeFrame_len(8);
-
-   /* Enable Chip Select */
-   Disp_chipSelect(Disp_pinLow);
-
-   /* Set the Display to Command Mode*/
-   Disp_dataCommand_Select(Disp_enableCommand);
-
-   /* Send the Command */
-   SPI_Send(&t_txBuf, 1);
-
-   /* Set the Display to Data Mode*/
-   Disp_dataCommand_Select(Disp_enableData);
-   
-   /* Derive the SPI0 modules Frame Bit Length */
-   if(rx_bitLen > 8)
-      rx_frameBitLen = rx_bitLen + 1;
-   else
-      rx_frameBitLen = rx_bitLen;
-
-   /* Change the SPI0 module Frame Size register */
-   //Disp_changeFrame_len(rx_frameBitLen);
-
-   /* Calculate the Number of Bytes from Bit Length */
-   rx_ByteLen  = rx_frameBitLen / 8;
-
-   if((rx_frameBitLen % 8) != 0)
-      rx_ByteLen = rx_ByteLen + 1;
-      
-   /* Get the Data from the Dispaly Unit */
-   SPI_Receive(t_rxBuf, rx_ByteLen);
-
-   /* Rearrage the received Bytes according to Bit Length */
-   if(rx_bitLen > 8)
-   {
-      for(uint8_t iter = 0; iter < rx_ByteLen - 1; iter++)
-      {
-         rx_buf[iter] = ((((t_rxBuf[iter] << 1) & 0xFE) | ((t_rxBuf[iter + 1] >> 7) & 0x01)) & 0xFF);
-      }
-   }
-   else
-   {
-       rx_buf[0] = t_rxBuf[0];
-   }
-
-   /* Disable Chip Select */
-   Disp_chipSelect(Disp_pinHigh);
-}
-
-void Disp_changeFrame_len(uint8_t frameBits)
-{
-   /* Check the Precondition */
-   ASSERT((frameBits >= 4) && (frameBits <= 16));
-
-    /* Poll till SPI0 is Idle after Transmission */
-    while(((SSI0->SR >> 4) & 0x01))
-    ;
-
-    /* Disable the SPI0 module */
-    SSI0->CR1 &= ~(1<<1);
-
-    /* Configure the Frame Length in bits*/
-    SSI0->CR0 |= frameBits - 1;
-
-    /* Enable SPI0 module */
-    SSI0->CR1 |= (1<<1);
-
+      Disp_readReg(0x09, rx_buffer, 32);
+      /* Sleep Out */
+      Disp_writeReg(0x11, paramBuff, 0);
+      Disp_readReg(0x09, rx_buffer, 32);
+      OS_delay(500);
+      /* Sleep In */
+      Disp_writeReg(0x10, paramBuff, 0);
+      Disp_readReg(0x09, rx_buffer, 32);
+      OS_delay(500);
 }
