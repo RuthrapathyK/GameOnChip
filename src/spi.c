@@ -7,7 +7,7 @@ void SPI_Init(void)
     /* Enable Clock for SPI0 peripheral */
     SYSCTL->RCGCSSI |= 1<<0;
 
-    /* Wait till the SPI0 peropheral is ready */
+    /* Wait till the SPI0 peripheral is ready */
     while(!(SYSCTL->PRSSI & 0x01))
     ;
 
@@ -24,13 +24,13 @@ void SPI_Init(void)
     SSI0->CPSR = 2;
 
     /* Configure the Serial Clock rate of SPI0 module as 1MHz */
-    SSI0->CR0 |= 79 << 8;
+    SSI0->CR0 |= 7 << 8;
 
     /* Select Freescale mode with CPOL = 0 and CPHA = 0*/
     SSI0->CR0 &= ~(3<<4); // Frescale Mode
     SSI0->CR0 &= ~(3<<6); // CPOL and CPHA
 
-    /* Configure the Data size in the Frame as */
+    /* Configure the Data size in the Frame as 8 bits*/
     SSI0->CR0 |= 7;
 
     /* Enable SPI0 module */
