@@ -6,6 +6,7 @@
 
 uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 uint16_t ScanLine = 0;
+uint8_t count = 0;
 
 Display_Pixel_type pixel_data = {0};
 
@@ -274,9 +275,41 @@ void Disp_MemoryRead_18bit()
       /* Read the Pixel Data */
       //Disp_readReg(DISP_CMD_RAMRD, rx_buffer, 5760);
 }
+
 void Disp_Run(void)
 {
-      Disp_MemoryWrite_18bit();
-//      Disp_MemoryRead_18bit();
-//     OS_delay(1000);
+     count %= 5;
+     switch(count)
+     {
+      case 0:
+            rgb_red = 63;
+            rgb_green = 0;
+            rgb_blue = 0;
+            break;
+      case 1:
+            rgb_red = 0;
+            rgb_green = 0;
+            rgb_blue = 63;
+            break;
+      case 2:
+            rgb_red = 0;
+            rgb_green = 63;
+            rgb_blue = 0;
+            break;
+      case 3:
+            rgb_red = 0;
+            rgb_green = 0;
+            rgb_blue = 0;
+            break;
+      case 4:
+            rgb_red = 63;
+            rgb_green = 63;
+            rgb_blue = 63;
+            break;
+      default:
+            break;            
+     }
+
+     Disp_MemoryWrite_18bit();
+     count++;
 }
