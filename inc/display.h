@@ -58,7 +58,7 @@
 
 /* Power control / display settings */
 #define DISP_CMD_SET_TEAR_SCANLINE           0x44
-#define DISP_CMD_GET_TEAR_SCANLINE           0x45
+#define DISP_CMD_GET_SCANLINE           0x45
 
 /* Brightness and Display Control */
 #define DISP_CMD_WR_DISPLAY_BRIGHTNESS       0x51
@@ -121,9 +121,15 @@ typedef enum{
     Disp_enableMax
 }Disp_cmdData_e;
 
+typedef struct{
+    uint16_t Pixel_Red;
+    uint16_t Pixel_Green;
+    uint16_t Pixel_Blue;
+}Display_Pixel_type;
+
 void Disp_Init(void);
 void Disp_Run(void);
-void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint8_t rx_bitLen);
-void Disp_writeReg(uint8_t cmd, uint16_t *tx_buf, uint8_t tx_bitLen);
+void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint32_t rx_bitLen);
+void Disp_writeReg(uint8_t cmd, uint16_t *tx_buf, uint32_t tx_bitLen);
 
 #endif
