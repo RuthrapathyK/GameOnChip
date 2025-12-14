@@ -11,6 +11,6 @@ void Task_A(void)
   while(1)
   {
     Disp_Run();
-    //OS_delay(1000);
+    OS_delay(1000);
   }
 }
