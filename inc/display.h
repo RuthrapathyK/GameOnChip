@@ -121,10 +121,10 @@ typedef enum{
     Disp_enableMax
 }Disp_cmdData_e;
 
-typedef struct{
-    uint16_t Pixel_Red;
-    uint16_t Pixel_Green;
+typedef struct  __attribute__((packed)) {
     uint16_t Pixel_Blue;
+    uint16_t Pixel_Green;
+    uint16_t Pixel_Red;
 }Display_Pixel_type;
 
 void Disp_Init(void);

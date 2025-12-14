@@ -216,13 +216,6 @@ void Disp_Init(void)
 
       /* Display ON */
       Disp_writeReg(DISP_CMD_DISPON, paramBuff, 0);
-}
-void Disp_MemoryWrite_18bit(void)
-{
-      /* Load the Pixel Data to Buffer */
-      pixel_data.Pixel_Red = rgb_red << 2;
-      pixel_data.Pixel_Blue = rgb_blue << 2;
-      pixel_data.Pixel_Green = rgb_green << 2;
 
       /* Set Column Address */
       paramBuff[0] = 0x00; // SC15:SC8
@@ -234,9 +227,16 @@ void Disp_MemoryWrite_18bit(void)
       /* Set the Page Address */
       paramBuff[0] = 0x00; // SP15:SP8
       paramBuff[1] = 0x00; // SP7:SP0
-      paramBuff[2] = 0x00; // EP15:EP8
-      paramBuff[3] = 0xEF; // EP7:EP0
+      paramBuff[2] = 0x01; // EP15:EP8
+      paramBuff[3] = 0x3F; // EP7:EP0
       Disp_writeReg(DISP_CMD_RASET, paramBuff, 32);
+}
+void Disp_MemoryWrite_18bit(void)
+{
+      /* Load the Pixel Data to Buffer */
+      pixel_data.Pixel_Red = rgb_red << 2;
+      pixel_data.Pixel_Blue = rgb_blue << 2;
+      pixel_data.Pixel_Green = rgb_green << 2;      
 
       /* Send only command to write Pixel Data */
       Disp_writeReg(DISP_CMD_RAMWR, (uint16_t *)&pixel_data, 0);
