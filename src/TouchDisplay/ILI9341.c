@@ -153,10 +153,10 @@ void ILI_writeReg(uint8_t cmd, uint16_t *paramData_buf, uint32_t paramData_bitLe
 
 void ILI_MemWrite_18bit(ILI_Pixel_type * data, uint32_t length)
 {
-      /* Shift it according to the 18bit configuration  */
-      data->ILI_PixRed = 60 << 2;
-      data->ILI_PixBlue = 0;
-      data->ILI_PixGreen = 0;      
+      // /* Shift it according to the 18bit configuration  */
+      // data->ILI_PixRed = 60 << 2;
+      // data->ILI_PixBlue = 0;
+      // data->ILI_PixGreen = 0;      
 
       /* Send only command to write Pixel Data */
       ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)data, 0);

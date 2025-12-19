@@ -106,29 +106,29 @@ void Disp_Init(void)
       /* Set Maximum Column Address and Page Address i.e Display Resolution */
       Disp_setPixel_Pointer(0, 0, 240, 320);
 }
-void Disp_MemoryWrite_18bit(void)
-{
-      /* Load the Pixel Data to Buffer */
-      pixel_data.Pixel_Red = rgb_red << 2;
-      pixel_data.Pixel_Blue = rgb_blue << 2;
-      pixel_data.Pixel_Green = rgb_green << 2;      
+// void Disp_MemoryWrite_18bit(void)
+// {
+//       /* Load the Pixel Data to Buffer */
+//       pixel_data.Pixel_Red = rgb_red << 2;
+//       pixel_data.Pixel_Blue = rgb_blue << 2;
+//       pixel_data.Pixel_Green = rgb_green << 2;      
 
-      /* Send only command to write Pixel Data */
-      ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)&pixel_data, 0);
+//       /* Send only command to write Pixel Data */
+//       ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)&pixel_data, 0);
 
-      /* Enable Chip Select */
-      Disp_chipSelect(Disp_pinLow);
+//       /* Enable Chip Select */
+//       Disp_chipSelect(Disp_pinLow);
 
-      /* Set the Display to Data Mode*/
-      Disp_dataCommand_Select(Disp_enableData);
+//       /* Set the Display to Data Mode*/
+//       Disp_dataCommand_Select(Disp_enableData);
 
-      /* Send the Data to be written in Memory */
-      for(uint32_t iter = 0; iter < 240 * 160; iter++)
-            SPI_Send((uint16_t *)&pixel_data, 3);
+//       /* Send the Data to be written in Memory */
+//       for(uint32_t iter = 0; iter < 240 * 160; iter++)
+//             SPI_Send((uint16_t *)&pixel_data, 3);
 
-      /* Disable Chip Select */
-      Disp_chipSelect(Disp_pinHigh);
-}
+//       /* Disable Chip Select */
+//       Disp_chipSelect(Disp_pinHigh);
+// }
 
 void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr)
 {
@@ -206,7 +206,10 @@ void Disp_Run(void)
       default:
             break;            
      }
+     pixel_data.Pixel_Blue = rgb_blue <<2;
+     pixel_data.Pixel_Red = rgb_red <<2;
+     pixel_data.Pixel_Green = rgb_green <<2;
 
-     Disp_MemoryWrite_18bit();
+     ILI_MemWrite_18bit((ILI_Pixel_type *)&pixel_data, 240*160);
      count++;
 }
