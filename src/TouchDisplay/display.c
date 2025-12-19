@@ -218,19 +218,8 @@ void Disp_Init(void)
       /* Display ON */
       Disp_writeReg(DISP_CMD_DISPON, paramBuff, 0);
 
-      /* Set Column Address */
-      paramBuff[0] = 0x00; // SC15:SC8
-      paramBuff[1] = 0x00; // SC7:SC0
-      paramBuff[2] = 0x00; // EC15:EC8
-      paramBuff[3] = 0xEF; // EC7:EC0
-      Disp_writeReg(DISP_CMD_CASET, paramBuff, 32);
-
-      /* Set the Page Address */
-      paramBuff[0] = 0x00; // SP15:SP8
-      paramBuff[1] = 0x00; // SP7:SP0
-      paramBuff[2] = 0x01; // EP15:EP8
-      paramBuff[3] = 0x3F; // EP7:EP0
-      Disp_writeReg(DISP_CMD_RASET, paramBuff, 32);
+      /* Set Maximum Column Address and Page Address i.e Display Resolution */
+      Disp_setPixel_Pointer(0, 0, 240, 320);
 }
 void Disp_MemoryWrite_18bit(void)
 {
@@ -249,28 +238,40 @@ void Disp_MemoryWrite_18bit(void)
       Disp_dataCommand_Select(Disp_enableData);
 
       /* Send the Data to be written in Memory */
-      for(uint32_t iter = 0; iter < 240 * 320; iter++)
+      for(uint32_t iter = 0; iter < 240 * 160; iter++)
             SPI_Send((uint16_t *)&pixel_data, 3);
 
       /* Disable Chip Select */
       Disp_chipSelect(Disp_pinHigh);
 }
 
-void Disp_MemoryRead_18bit()
+void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr)
 {
+      ASSERT((max_col_addr <= 240) && (max_pg_addr <= 320) && (cur_col_addr < 240) && (cur_pg_addr < 320));
+
+      uint16_t t_buf[4] = {0};
+      uint16_t t_max_col_addr = max_col_addr - 1;
+      uint16_t t_max_pg_addr = max_pg_addr - 1;
+
       /* Set Column Address */
-      paramBuff[0] = 0x00; // SC15:SC8
-      paramBuff[1] = 0x00; // SC7:SC0
-      paramBuff[2] = 0x00; // EC15:EC8
-      paramBuff[3] = 0xEF; // EC7:EC0
-      Disp_writeReg(DISP_CMD_CASET, paramBuff, 32);
+      t_buf[0] = ((cur_col_addr >> 8) & 0x01);   // SC15:SC8
+      t_buf[1] = (cur_col_addr & 0xFF);          // SC7:SC0
+      t_buf[2] = ((t_max_col_addr >> 8) & 0x01); // EC15:EC8
+      t_buf[3] = (t_max_col_addr & 0xFF);        // EC7:EC0
+      Disp_writeReg(DISP_CMD_CASET, t_buf, 32);
 
       /* Set the Page Address */
-      paramBuff[0] = 0x00; // SP15:SP8
-      paramBuff[1] = 0x00; // SP7:SP0
-      paramBuff[2] = 0x00; // EP15:EP8
-      paramBuff[3] = 0xEF; // EP7:EP0
-      Disp_writeReg(DISP_CMD_RASET, paramBuff, 32);
+      t_buf[0] = ((cur_pg_addr >> 8) & 0x01); // SP15:SP8
+      t_buf[1] = (cur_pg_addr & 0xFF); // SP7:SP0
+      t_buf[2] = ((t_max_pg_addr >> 8) & 0x01); // EP15:EP8
+      t_buf[3] = (t_max_pg_addr & 0xFF); // EP7:EP0
+      Disp_writeReg(DISP_CMD_RASET, t_buf, 32);
+
+}
+
+void Disp_MemoryRead_18bit()
+{
+      Disp_setPixel_Pointer(0, 0, 240, 320);
 
       /* Read the Pixel Data */
       //Disp_readReg(DISP_CMD_RAMRD, rx_buffer, 5760);
@@ -278,25 +279,29 @@ void Disp_MemoryRead_18bit()
 
 void Disp_Run(void)
 {
-     count %= 5;
+     count %= 4;
      switch(count)
      {
       case 0:
+            Disp_setPixel_Pointer(0, 0, 240, 160);
             rgb_red = 63;
             rgb_green = 0;
             rgb_blue = 0;
             break;
       case 1:
+            Disp_setPixel_Pointer(0, 160, 240, 320);
             rgb_red = 0;
             rgb_green = 0;
             rgb_blue = 63;
             break;
       case 2:
+            Disp_setPixel_Pointer(0, 0, 240, 160);
             rgb_red = 0;
             rgb_green = 63;
             rgb_blue = 0;
             break;
       case 3:
+            Disp_setPixel_Pointer(0, 160, 240, 320);
             rgb_red = 0;
             rgb_green = 0;
             rgb_blue = 0;

@@ -17,12 +17,15 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 
 VPATH = src;inc;build
 
-# Automatically discover all .c files in src/ and convert to object files
-SOURCES = $(wildcard $(SRC_FOLDER)/*.c)
-OBJECTS = $(patsubst $(SRC_FOLDER)/%.c, $(BUILD_FOLDER)/%.o, $(SOURCES))
+# Automatically discover all .c files recursively in src/ folder
+SOURCES = $(wildcard $(SRC_FOLDER)/*.c) $(wildcard $(SRC_FOLDER)/*/*.c) $(wildcard $(SRC_FOLDER)/*/*/*.c)
+OBJECTS = $(addprefix $(BUILD_FOLDER)/, $(notdir $(SOURCES:.c=.o)))
 
-# Pattern rule: compile all .c files to .o files
+# Pattern rule: compile all .c files from any location in src folder
 $(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/%.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
 
 # Rules starts here

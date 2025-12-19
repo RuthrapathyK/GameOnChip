@@ -131,5 +131,6 @@ void Disp_Init(void);
 void Disp_Run(void);
 void Disp_readReg(uint8_t cmd, uint16_t *rx_buf, uint32_t rx_bitLen);
 void Disp_writeReg(uint8_t cmd, uint16_t *tx_buf, uint32_t tx_bitLen);
+void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr);
 
 #endif
