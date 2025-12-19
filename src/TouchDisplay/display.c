@@ -3,6 +3,7 @@
 #include "../Drivers/GPIO/gpio.h"
 #include "../Drivers/PinMux/pinconfig.h"
 #include "../OS/scheduler.h"
+#include "ILI9341.h"
 
 uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 uint16_t ScanLine = 0;
@@ -40,8 +41,8 @@ static void Disp_dataCommand_Select(Disp_cmdData_e flag)
 
 static void Disp_delayMS(uint32_t ms)
 {
-      OS_delay(ms);
-}
+    OS_delay(ms);
+} 
 
 void Disp_HardReset(void)
 {
@@ -199,24 +200,24 @@ void Disp_Init(void)
       /* Check whether the Read Diagnostic bits are inverted */
       Disp_readReg(DISP_CMD_READ_SELFDIAG_RESULT, &selfDiag_2, 8);
       if(((selfDiag_1 ^ selfDiag_2) >> 6) != 3)
-            while(1);
+            ASSERT(0);
 
       /* Idle mode OFF */
-      Disp_writeReg(DISP_CMD_IDLE_MODE_OFF, paramBuff, 0);
+      ILI_writeReg(ILI_CMD_IDLE_MODE_OFF, paramBuff, 0);
 
       /* Normal Mode ON */
-      Disp_writeReg(DISP_CMD_NORON, paramBuff, 0);
+      ILI_writeReg(ILI_CMD_NORON, paramBuff, 0);
 
       /* Change the Brightness - Enable the Brightness and Backlight Modules*/
       paramBuff[0] = (1<<5 | 1<<2);
-      Disp_writeReg(DISP_CMD_WR_DISPLAY_CTRL, paramBuff, 8);
+      ILI_writeReg(ILI_CMD_WR_DISPLAY_CTRL, paramBuff, 8);
 
       /* Set the Color Mode Pixel as 18bit- COLMOD*/
       paramBuff[0] = 0x66;
-      Disp_writeReg(DISP_CMD_COLMOD, paramBuff, 0);
+      ILI_writeReg(ILI_CMD_COLMOD, paramBuff, 0);
 
       /* Display ON */
-      Disp_writeReg(DISP_CMD_DISPON, paramBuff, 0);
+      ILI_writeReg(ILI_CMD_DISPON, paramBuff, 0);
 
       /* Set Maximum Column Address and Page Address i.e Display Resolution */
       Disp_setPixel_Pointer(0, 0, 240, 320);
