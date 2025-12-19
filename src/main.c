@@ -1,10 +1,10 @@
 #include "common.h"
-#include "led.h"
-#include "timer.h"
+#include "LED/led.h"
+#include "Drivers/timer.h"
 #include "common.h"
-#include "scheduler.h"
-#include "tasks.h"
-#include "app.h"
+#include "OS/scheduler.h"
+#include "OS/tasks.h"
+#include "Application/app.h"
 
 #define SCHEDULE_TIME_MS 10
 

@@ -3,8 +3,7 @@
 #include "TM4C123GH6PM.h"
 #include "tasks.h"
 #include "common.h"
-#include "timer.h"
-#include "led.h"
+#include "../Drivers/timer.h"
 #include "semaphores.h"
 #include "mutex.h"
 

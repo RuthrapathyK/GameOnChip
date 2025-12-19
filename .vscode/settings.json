@@ -3,7 +3,7 @@
         "*.c": "c",
         "*.h": "c",
         "led.h": "c",
-        "tm4c123gh6pm.h": "c",
+        "TM4C123GH6PM.h": "c",
         "timer.h": "c",
         "typedef.h": "c",
         "button.h": "c",
