@@ -128,41 +128,39 @@ void Disp_Run(void)
      switch(count)
      {
       case 0:
-            Disp_setPixel_Pointer(0, 0, 240, 160);
-            rgb_red = 63;
-            rgb_green = 0;
-            rgb_blue = 0;
+            pixel_data.Pixel_Red = 63;
+            pixel_data.Pixel_Green = 0;
+            pixel_data.Pixel_Blue = 0;
+            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
             break;
       case 1:
-            Disp_setPixel_Pointer(0, 160, 240, 320);
-            rgb_red = 0;
-            rgb_green = 0;
-            rgb_blue = 63;
+            pixel_data.Pixel_Red = 0;
+            pixel_data.Pixel_Green = 0;
+            pixel_data.Pixel_Blue = 63;
+            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
             break;
       case 2:
-            Disp_setPixel_Pointer(0, 0, 240, 160);
-            rgb_red = 0;
-            rgb_green = 63;
-            rgb_blue = 0;
+            pixel_data.Pixel_Red = 0;
+            pixel_data.Pixel_Green = 63;
+            pixel_data.Pixel_Blue = 0;
+            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
             break;
       case 3:
-            Disp_setPixel_Pointer(0, 160, 240, 320);
-            rgb_red = 0;
-            rgb_green = 0;
-            rgb_blue = 0;
+            pixel_data.Pixel_Red = 0;
+            pixel_data.Pixel_Green = 0;
+            pixel_data.Pixel_Blue = 0;
+            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
             break;
       case 4:
-            rgb_red = 63;
-            rgb_green = 63;
-            rgb_blue = 63;
+            pixel_data.Pixel_Red = 63;
+            pixel_data.Pixel_Green = 63;
+            pixel_data.Pixel_Blue = 63;
+            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
             break;
       default:
             break;            
      }
-     pixel_data.Pixel_Blue = rgb_blue;
-     pixel_data.Pixel_Red = rgb_red;
-     pixel_data.Pixel_Green = rgb_green;
 
-     Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+     
      count++;
 }
