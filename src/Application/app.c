@@ -4,7 +4,9 @@
 #include "../TouchDisplay/display.h"
 #include "../OS/scheduler.h"
 
-void Task_A(void)
+uint32_t App_TaskStack[APP_TASK_STACK_SIZE]={0};
+
+void App_Task(void)
 {
   Disp_Init();
 

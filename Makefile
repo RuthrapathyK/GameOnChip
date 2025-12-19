@@ -17,15 +17,24 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 
 VPATH = src;inc;build
 
-# Automatically discover all .c files recursively in src/ folder
-SOURCES = $(wildcard $(SRC_FOLDER)/*.c) $(wildcard $(SRC_FOLDER)/*/*.c) $(wildcard $(SRC_FOLDER)/*/*/*.c)
+# Recursively find all .c files in src/ folder and all subdirectories
+SOURCES := $(shell powershell -Command "Get-ChildItem -Path '$(SRC_FOLDER)' -Filter '*.c' -Recurse | ForEach-Object { Write-Output $$_.FullName }")
 OBJECTS = $(addprefix $(BUILD_FOLDER)/, $(notdir $(SOURCES:.c=.o)))
 
-# Pattern rule: compile all .c files from any location in src folder
+# Generic pattern rule: compile all .c files from any location in src folder and subdirectories
 $(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/%.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
 
 $(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/*/*/%.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
 
 # Rules starts here

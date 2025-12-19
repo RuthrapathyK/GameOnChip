@@ -1,7 +1,4 @@
 #include "common.h"
-#include "LED/led.h"
-#include "Drivers/timer.h"
-#include "common.h"
 #include "OS/scheduler.h"
 #include "OS/tasks.h"
 #include "Application/app.h"
@@ -12,19 +9,16 @@
 #define SCHEDULE_TIME_FACTOR 1000
 #define SCHEDULE_TIME_US (SCHEDULE_TIME_FACTOR * SCHEDULE_TIME_MS)
 
-#define TASK_A_STACK_SIZE 250
-
-uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
 
 void main()
 {
   TestPin_Init();
 
+  /* Add Task for Scheduling */
+  createTask(App_TaskStack,APP_TASK_STACK_SIZE,&App_Task, 1);
+
   /* Initialize the System Timer */
   SystemTimer_Start(1);
-
-  /* Add Task for Scheduling */
-  createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A, 1);
 
   /* Initialize and start the Scheduler */
   OS_schedulerRun(SCHEDULE_TIME_US);
