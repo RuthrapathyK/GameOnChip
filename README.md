@@ -1,6 +1,6 @@
 Driver_TM4C123GH6PMI:
 
-The purpose of the repository is to develop own custom RTOS from scratch using TM4C123GH6PMI microcontroller
+The purpose of the repository is to a mini game using 2.8TFT touch display and TM4C123GXL evaluation board
 
 The microcontroller is present in the Evaluation Kit EK-TM4C123GXL. The drivers are developed from scratch. From the scratch development includes
     1. Writing Make file
