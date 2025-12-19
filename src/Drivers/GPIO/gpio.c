@@ -8,7 +8,7 @@
  */
 
 #include "gpio.h"
-#include "pinconfig.h"
+#include "../PinMux/pinconfig.h"
 /**
  * @brief Retrieves the base address of a GPIO port register structure.
  *

@@ -3,7 +3,7 @@
 #include "TM4C123GH6PM.h"
 #include "tasks.h"
 #include "common.h"
-#include "../Drivers/timer.h"
+#include "../Drivers/Timer/timer.h"
 #include "semaphores.h"
 #include "mutex.h"
 #include "../Debug/testpin.h"

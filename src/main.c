@@ -3,12 +3,14 @@
 #include "OS/tasks.h"
 #include "Application/app.h"
 #include "Debug/testpin.h"
+#include "../src/Drivers/Timer/timer.h"
 
 #define SCHEDULE_TIME_MS 10
 
 #define SCHEDULE_TIME_FACTOR 1000
 #define SCHEDULE_TIME_US (SCHEDULE_TIME_FACTOR * SCHEDULE_TIME_MS)
 
+extern uint32_t App_TaskStack[APP_TASK_STACK_SIZE];
 
 void main()
 {

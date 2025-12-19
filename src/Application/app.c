@@ -1,8 +1,9 @@
-#include "../Drivers/spi.h"
-#include "../Drivers/gpio.h"
-#include "../Drivers/pinconfig.h"
+#include "../Drivers/SPI/spi.h"
+#include "../Drivers/GPIO/gpio.h"
+#include "../Drivers/PinMux/pinconfig.h"
 #include "../TouchDisplay/display.h"
 #include "../OS/scheduler.h"
+#include "app.h"
 
 uint32_t App_TaskStack[APP_TASK_STACK_SIZE]={0};
 

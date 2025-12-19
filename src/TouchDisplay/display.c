@@ -1,7 +1,7 @@
 #include "display.h"
-#include "../Drivers/spi.h"
-#include "../Drivers/gpio.h"
-#include "../Drivers/pinconfig.h"
+#include "../Drivers/SPI/spi.h"
+#include "../Drivers/GPIO/gpio.h"
+#include "../Drivers/PinMux/pinconfig.h"
 #include "../OS/scheduler.h"
 
 uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};

@@ -1,6 +1,6 @@
 
 #include "testpin.h"
-#include "../Drivers/gpio.h"
+#include "../Drivers/GPIO/gpio.h"
 
 /**
  * @brief Initialize Test Pin (PB3) as digital output

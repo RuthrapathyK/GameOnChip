@@ -1,5 +1,5 @@
 #include "spi.h"
-#include "pinconfig.h"
+#include "../PinMux/pinconfig.h"
 #include "TM4C123GH6PM.h"
 
 void SPI_Init(void)
