@@ -21,13 +21,13 @@ void main()
   TestPin_Init();
 
   /* Initialize the System Timer */
-  SystemTimer_Init(1);
+  SystemTimer_Start(1);
 
   /* Add Task for Scheduling */
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A, 1);
 
   /* Initialize and start the Scheduler */
-  scheduler_Init(SCHEDULE_TIME_US);
+  OS_schedulerRun(SCHEDULE_TIME_US);
 
   while(1)
   {
