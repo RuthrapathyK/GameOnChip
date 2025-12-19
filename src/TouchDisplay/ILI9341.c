@@ -159,7 +159,7 @@ void ILI_MemWrite_18bit(ILI_Pixel_type * data, uint32_t length)
       data->ILI_PixGreen = 0;      
 
       /* Send only command to write Pixel Data */
-      ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)&data, 0);
+      ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)data, 0);
 
       /* Enable Chip Select */
       ILI_chipSelect(ILI_pinLow);
@@ -169,7 +169,7 @@ void ILI_MemWrite_18bit(ILI_Pixel_type * data, uint32_t length)
 
       /* Send the Data to be written in Memory */
       for(uint32_t iter = 0; iter < length; iter++)
-            SPI_Send((uint16_t *)&data, 3);
+            SPI_Send((uint16_t *)data, 3);
 
       /* Disable Chip Select */
       ILI_chipSelect(ILI_pinHigh);
