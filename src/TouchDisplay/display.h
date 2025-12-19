@@ -3,11 +3,11 @@
 
 #include "common.h"
 
-typedef struct  __attribute__((packed)) {
+typedef struct{
     uint16_t Pixel_Blue;
     uint16_t Pixel_Green;
     uint16_t Pixel_Red;
-}Display_Pixel_type;
+}Disp_Pixel_type;
 
 void Disp_Init(void);
 void Disp_Run(void);

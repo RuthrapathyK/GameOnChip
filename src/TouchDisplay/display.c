@@ -9,11 +9,7 @@ uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 
 uint16_t ScanLine = 0;
 uint8_t count = 0;
 
-Display_Pixel_type pixel_data = {0};
-
-uint8_t rgb_red = 0;
-uint8_t rgb_blue = 0;
-uint8_t rgb_green = 0;
+Disp_Pixel_type Diplay_Pixel = {0};
 
 static void Disp_delayMS(uint32_t ms)
 {
@@ -106,7 +102,7 @@ void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t
       ILI_writeReg(ILI_CMD_RASET, t_buf, 32);
 
 }
-void Disp_sendPixels(Display_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_start, uint32_t length)
+void Disp_sendPixels(Disp_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_start, uint32_t length)
 {
       ILI_Pixel_type t_pxl_dat = {0};
 
@@ -128,39 +124,37 @@ void Disp_Run(void)
      switch(count)
      {
       case 0:
-            pixel_data.Pixel_Red = 63;
-            pixel_data.Pixel_Green = 0;
-            pixel_data.Pixel_Blue = 0;
-            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+            Diplay_Pixel.Pixel_Red = 63;
+            Diplay_Pixel.Pixel_Green = 0;
+            Diplay_Pixel.Pixel_Blue = 0;
+            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
             break;
       case 1:
-            pixel_data.Pixel_Red = 0;
-            pixel_data.Pixel_Green = 0;
-            pixel_data.Pixel_Blue = 63;
-            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+            Diplay_Pixel.Pixel_Red = 0;
+            Diplay_Pixel.Pixel_Green = 0;
+            Diplay_Pixel.Pixel_Blue = 63;
+            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
             break;
       case 2:
-            pixel_data.Pixel_Red = 0;
-            pixel_data.Pixel_Green = 63;
-            pixel_data.Pixel_Blue = 0;
-            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+            Diplay_Pixel.Pixel_Red = 0;
+            Diplay_Pixel.Pixel_Green = 63;
+            Diplay_Pixel.Pixel_Blue = 0;
+            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
             break;
       case 3:
-            pixel_data.Pixel_Red = 0;
-            pixel_data.Pixel_Green = 0;
-            pixel_data.Pixel_Blue = 0;
-            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+            Diplay_Pixel.Pixel_Red = 0;
+            Diplay_Pixel.Pixel_Green = 0;
+            Diplay_Pixel.Pixel_Blue = 0;
+            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
             break;
       case 4:
-            pixel_data.Pixel_Red = 63;
-            pixel_data.Pixel_Green = 63;
-            pixel_data.Pixel_Blue = 63;
-            Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
+            Diplay_Pixel.Pixel_Red = 63;
+            Diplay_Pixel.Pixel_Green = 63;
+            Diplay_Pixel.Pixel_Blue = 63;
+            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
             break;
       default:
             break;            
      }
-
-     
      count++;
 }
