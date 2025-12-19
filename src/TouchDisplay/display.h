@@ -3,18 +3,6 @@
 
 #include "common.h"
 
-typedef enum{
-    Disp_pinLow,
-    Disp_pinHigh,
-    Disp_Max
-}Disp_PinState_e;
-
-typedef enum{
-    Disp_enableCommand,
-    Disp_enableData,
-    Disp_enableMax
-}Disp_cmdData_e;
-
 typedef struct  __attribute__((packed)) {
     uint16_t Pixel_Blue;
     uint16_t Pixel_Green;

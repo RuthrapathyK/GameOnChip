@@ -15,30 +15,6 @@ uint8_t rgb_red = 0;
 uint8_t rgb_blue = 0;
 uint8_t rgb_green = 0;
 
-static void Disp_chipSelect(Disp_PinState_e state)
-{
-      if(state == Disp_pinLow)
-            GPIO_clearPin(PA3);
-      else
-            GPIO_setPin(PA3);
-}
-
-static void Disp_resetPin(Disp_PinState_e state)
-{
-      if(state == Disp_pinLow)
-            GPIO_clearPin(PE1);
-      else
-            GPIO_setPin(PE1);
-}
-
-static void Disp_dataCommand_Select(Disp_cmdData_e flag)
-{
-      if(flag == Disp_enableCommand)
-            GPIO_clearPin(PE2);
-      else
-            GPIO_setPin(PE2);
-}
-
 static void Disp_delayMS(uint32_t ms)
 {
     OS_delay(ms);
@@ -106,29 +82,6 @@ void Disp_Init(void)
       /* Set Maximum Column Address and Page Address i.e Display Resolution */
       Disp_setPixel_Pointer(0, 0, 240, 320);
 }
-// void Disp_MemoryWrite_18bit(void)
-// {
-//       /* Load the Pixel Data to Buffer */
-//       pixel_data.Pixel_Red = rgb_red << 2;
-//       pixel_data.Pixel_Blue = rgb_blue << 2;
-//       pixel_data.Pixel_Green = rgb_green << 2;      
-
-//       /* Send only command to write Pixel Data */
-//       ILI_writeReg(ILI_CMD_RAMWR, (uint16_t *)&pixel_data, 0);
-
-//       /* Enable Chip Select */
-//       Disp_chipSelect(Disp_pinLow);
-
-//       /* Set the Display to Data Mode*/
-//       Disp_dataCommand_Select(Disp_enableData);
-
-//       /* Send the Data to be written in Memory */
-//       for(uint32_t iter = 0; iter < 240 * 160; iter++)
-//             SPI_Send((uint16_t *)&pixel_data, 3);
-
-//       /* Disable Chip Select */
-//       Disp_chipSelect(Disp_pinHigh);
-// }
 
 void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr)
 {
@@ -206,10 +159,10 @@ void Disp_Run(void)
       default:
             break;            
      }
-     pixel_data.Pixel_Blue = rgb_blue <<2;
-     pixel_data.Pixel_Red = rgb_red <<2;
-     pixel_data.Pixel_Green = rgb_green <<2;
+     pixel_data.Pixel_Blue = rgb_blue;
+     pixel_data.Pixel_Red = rgb_red;
+     pixel_data.Pixel_Green = rgb_green;
 
-     ILI_MemWrite_18bit((ILI_Pixel_type *)&pixel_data, 240*160);
+     Disp_sendPixels(&pixel_data, 0,0, 240 * 160);
      count++;
 }
