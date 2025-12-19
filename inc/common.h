@@ -31,10 +31,4 @@ inline void __attribute__((always_inline))__disable_irq(void)
   __asm("CPSID I");
 }
 
-
-#define TESTPIN_ON  GPIOB->DATA_Bits[8] = 0xFF
-#define TESTPIN_OFF GPIOB->DATA_Bits[8] = 0x00
-
-void TestPin_Init(void);
-
 #endif

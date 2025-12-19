@@ -6,6 +6,9 @@
 #include "../Drivers/timer.h"
 #include "semaphores.h"
 #include "mutex.h"
+#include "../Debug/testpin.h"
+
+#define IDLE_TASK_STACK_SIZE 50
 
 uint8_t CurTask_Idx = 0;
 static volatile bool f_schdInit = false;
@@ -14,10 +17,19 @@ uint32_t schIter = 0;
 Task_type temp_Task;
 Mutex_Type *mutex = 0;
 uint32_t tmp_TaskIdx = 0;
+static uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
 extern uint32_t Max_SchTask;
 extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
 extern volatile uint32_t SystemTime_Count;
+
+void IdleTask(void)
+{
+  while(1){
+    TESTPIN_ON;
+    TESTPIN_OFF;
+  }
+}
 
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
@@ -30,6 +42,16 @@ void scheduler_Init(uint32_t useconds)
 {
   /* Check for valid range of useconds */
   ASSERT((useconds >= 100) && (useconds <= 4194303)); // 100 is decided by scheduler execution time and 4194303 * 4 is the max value that can be loaded in STRELOAD register for 24bit timer
+
+    /* Set the Systick and PendSV to have Priority 1 (ie.Scheduler should be the Least Priority interrupt and other interrupts are High Priority) */
+  SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
+  SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
+
+  SCB->SYSPRI3 |= (0x01 << 29); // SysTick
+  SCB->SYSPRI3 |= (0x01 << 21); // PendSV
+
+  /* Idle task should have the Least priority than any other tasks created */
+  createTask(stack_IdleTask,IDLE_TASK_STACK_SIZE,&IdleTask, 255);
 
   /* Load the Reload Value */
   SysTick->STRELOAD = (useconds * 4);
