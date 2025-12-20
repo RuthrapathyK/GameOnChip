@@ -1,8 +1,8 @@
 #include "display.h"
-#include "../Drivers/SPI/spi.h"
-#include "../Drivers/GPIO/gpio.h"
-#include "../Drivers/PinMux/pinconfig.h"
-#include "../OS/scheduler.h"
+#include "../src/Drivers/SPI/spi.h"
+#include "../src/Drivers/GPIO/gpio.h"
+#include "../src/Drivers/PinMux/pinconfig.h"
+#include "../src/OS/scheduler.h"
 #include "ILI9341.h"
 
 uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
@@ -119,7 +119,7 @@ void Disp_sendPixels(Disp_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_sta
 }
 void Disp_Run(void)
 {
-     count %= 4;
+     count %= 5;
 
      switch(count)
      {
@@ -127,31 +127,31 @@ void Disp_Run(void)
             Diplay_Pixel.Pixel_Red = 63;
             Diplay_Pixel.Pixel_Green = 0;
             Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
+            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
             break;
       case 1:
             Diplay_Pixel.Pixel_Red = 0;
             Diplay_Pixel.Pixel_Green = 0;
             Diplay_Pixel.Pixel_Blue = 63;
-            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
+            Disp_sendPixels(&Diplay_Pixel, 0, 160, 240 * 160);
             break;
       case 2:
             Diplay_Pixel.Pixel_Red = 0;
             Diplay_Pixel.Pixel_Green = 63;
             Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
+            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
             break;
       case 3:
             Diplay_Pixel.Pixel_Red = 0;
             Diplay_Pixel.Pixel_Green = 0;
             Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
+            Disp_sendPixels(&Diplay_Pixel, 0, 160, 240 * 160);
             break;
       case 4:
             Diplay_Pixel.Pixel_Red = 63;
             Diplay_Pixel.Pixel_Green = 63;
             Diplay_Pixel.Pixel_Blue = 63;
-            Disp_sendPixels(&Diplay_Pixel, 0,0, 240 * 160);
+            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
             break;
       default:
             break;            

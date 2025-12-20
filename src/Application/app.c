@@ -1,7 +1,7 @@
 #include "../Drivers/SPI/spi.h"
 #include "../Drivers/GPIO/gpio.h"
 #include "../Drivers/PinMux/pinconfig.h"
-#include "../TouchDisplay/display.h"
+#include "../BSP/TouchDisplay/display.h"
 #include "../OS/scheduler.h"
 #include "app.h"
 
