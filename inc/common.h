@@ -12,23 +12,14 @@
 #define SYSTICK_TRIGGER SCB->INTCTRL |= 1<<26
 #define SYSTICK_CLEAR   SCB->INTCTRL |= 1<<25
 
+#define __INLINE__ inline __attribute__((always_inline))
+
 #define ASSERT(x) { \
   if(!(x)){ \
     __asm("BKPT");\
     while(1){ \
     }\
   }\
-}
-
-
-inline void __attribute__((always_inline))__enable_irq(void)
-{
-  __asm("CPSIE I");
-}
-
-inline void __attribute__((always_inline))__disable_irq(void)
-{
-  __asm("CPSID I");
 }
 
 #endif

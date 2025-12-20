@@ -5,7 +5,7 @@
 #include "../src/Drivers/PinMux/pinconfig.h"
 #include "../src/OS/scheduler.h"
 
-static void ILI_chipSelect(ILI_PinState_e state)
+__INLINE__ static void ILI_chipSelect(ILI_PinState_e state)
 {
       if(state == ILI_pinLow)
             GPIO_clearPin(PA3);
@@ -13,7 +13,7 @@ static void ILI_chipSelect(ILI_PinState_e state)
             GPIO_setPin(PA3);
 }
 
-static void ILI_resetPin(ILI_PinState_e state)
+__INLINE__ static void ILI_resetPin(ILI_PinState_e state)
 {
       if(state == ILI_pinLow)
             GPIO_clearPin(PE1);
@@ -21,7 +21,7 @@ static void ILI_resetPin(ILI_PinState_e state)
             GPIO_setPin(PE1);
 }
 
-static void ILI_dataCommand_Select(ILI_cmdData_e flag)
+__INLINE__ static void ILI_dataCommand_Select(ILI_cmdData_e flag)
 {
       if(flag == ILI_enableCommand)
             GPIO_clearPin(PE2);
@@ -29,24 +29,24 @@ static void ILI_dataCommand_Select(ILI_cmdData_e flag)
             GPIO_setPin(PE2);
 }
 
-static void ILI_delayMS(uint32_t ms)
+__INLINE__ static void ILI_delayMS(uint32_t ms)
 {
       OS_delay(ms);
 }
 
-static void ILI_chipSelect_Init(void)
+__INLINE__ static void ILI_chipSelect_Init(void)
 {
       /* Initialize Chip Select Pin - Initially High */
       GPIO_Init(PA3, GPIO_DigitalOutput, 1);    
 }
 
-static void ILI_resetPin_Init(void)
+__INLINE__ static void ILI_resetPin_Init(void)
 {
       /* Initialize the Reset pin  - Initially High */
       GPIO_Init(PE1, GPIO_DigitalOutput, 1);
 }
 
-static void ILI_DataCommandPin_Init(void)
+__INLINE__ static void ILI_DataCommandPin_Init(void)
 {
       /* Initialize the DC/RS pin (Data/Command)  - Initially DC */
       GPIO_Init(PE2, GPIO_DigitalOutput, 1);

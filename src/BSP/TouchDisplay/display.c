@@ -11,7 +11,7 @@ uint8_t count = 0;
 
 Disp_Pixel_type Diplay_Pixel = {0};
 
-static void Disp_delayMS(uint32_t ms)
+__INLINE__ static void Disp_delayMS(uint32_t ms)
 {
     OS_delay(ms);
 }

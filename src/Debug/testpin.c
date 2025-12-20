@@ -13,7 +13,7 @@ void TestPin_Init(void)
 /**
  * @brief Set Test Pin High
  */
-static inline void TestPin_High(void)
+__INLINE__ static void TestPin_High(void)
 {
     GPIO_setPin(PB3);
 }
@@ -21,7 +21,7 @@ static inline void TestPin_High(void)
 /**
  * @brief Set Test Pin Low
  */
-static inline void TestPin_Low(void)
+__INLINE__ static void TestPin_Low(void)
 {
     GPIO_clearPin(PB3);
 }
