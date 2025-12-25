@@ -80,7 +80,7 @@ void ILI_readReg(uint8_t cmd, uint16_t *rx_buf, uint32_t rx_bitLen)
    ILI_dataCommand_Select(ILI_enableCommand);
 
    /* Send the Command */
-   SPI_Send(&t_txBuf, 1);
+   SPI_Send(SPI_0, &t_txBuf, 1);
 
    /* Set the Display to Data Mode*/
    ILI_dataCommand_Select(ILI_enableData);
@@ -98,7 +98,7 @@ void ILI_readReg(uint8_t cmd, uint16_t *rx_buf, uint32_t rx_bitLen)
       rx_ByteLen = rx_ByteLen + 1;
       
    /* Get the Data from the Dispaly Unit */
-   SPI_Receive(rx_buf, rx_ByteLen);
+   SPI_Receive(SPI_0, rx_buf, rx_ByteLen);
 
    /* Rearrage the received Bytes according if Bit Length >8bits*/
    if(rx_bitLen > 8)
@@ -126,7 +126,7 @@ void ILI_writeReg(uint8_t cmd, uint16_t *paramData_buf, uint32_t paramData_bitLe
       ILI_dataCommand_Select(ILI_enableCommand);
 
       /* Send the Command */
-      SPI_Send(&t_txBuf, 1);
+      SPI_Send(SPI_0, &t_txBuf, 1);
 
       /* Check if teh Data or Command Parameter needs to be written */
       if(paramData_bitLen > 0)
@@ -141,7 +141,7 @@ void ILI_writeReg(uint8_t cmd, uint16_t *paramData_buf, uint32_t paramData_bitLe
                   tx_ByteLen = tx_ByteLen + 1;
 
             /* Send the Parameter of the Command / Data to be written in Memory */
-            SPI_Send(paramData_buf, tx_ByteLen);
+            SPI_Send(SPI_0, paramData_buf, tx_ByteLen);
       }
 
       /* Set the Display to Data Mode*/
@@ -169,7 +169,7 @@ void ILI_MemWrite_18bit(ILI_Pixel_type * data, uint32_t length)
 
       /* Send the Data to be written in Memory */
       for(uint32_t iter = 0; iter < length; iter++)
-            SPI_Send((uint16_t *)data, 3);
+            SPI_Send(SPI_0, (uint16_t *)data, 3);
 
       /* Disable Chip Select */
       ILI_chipSelect(ILI_pinHigh);
@@ -183,8 +183,17 @@ void ILI_MemRead_18bit(void)
 
 void ILI_DriverInit(void)
 {
+      SPI_config_t ILI_SPI_Config = {
+            .SPI_Mode = SPI_Master,
+            .SPI_InterfaceOption = SPI_Freescale,
+            .SPI_Clockfreq_Hz = 1000000,
+            .SPI_FrameSize_Bits = 8,
+            .SPI_Frame_Mode = SPI_cpha_0_cpol_0,
+            .SPI_Loopback_State = SPI_LoopBack_Disable
+      };
+
       /* Initialize SPI0 peripheral with configurations suitable for ILI9341 */
-      SPI_Init();
+      SPI_Init(SPI_0, ILI_SPI_Config);
 
       /* Configure Pins for SPI0 */
       Pin_Config(Port_PA, 2, PA2_SSI0CLK);

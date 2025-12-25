@@ -1,46 +1,182 @@
 #include "spi.h"
 #include "../PinMux/pinconfig.h"
 #include "TM4C123GH6PM.h"
+#include "common.h"
 
-void SPI_Init(void)
+static SSI0_Type* SPI_getBase(SPI_Module_e mod)
 {
-    /* Enable Clock for SPI0 peripheral */
-    SYSCTL->RCGCSSI |= 1<<0;
+    /* Check the Preconditions */
+    ASSERT(mod < SPI_Module_Max);
 
-    /* Wait till the SPI0 peripheral is ready */
-    while(!(SYSCTL->PRSSI & 0x01))
-    ;
+    SSI0_Type* retval = 0;
 
-    /* Disable the SPI0 module */
-    SSI0->CR1 &= ~(1<<1);
+    /* Map the base address of SPI Module */
+    switch(mod)
+    {
+        case SPI_0:
+            retval = SSI0;
+            break;
+        case SPI_1:
+            retval = SSI1;
+            break;
+        case SPI_2:
+            retval = SSI2;
+            break;
+        case SPI_3:
+            retval = SSI3;
+            break;
+        default:
+            ASSERT(0);
+            break;
+    }
 
-    /* Choose SPI0 module to be Master */
-    SSI0->CR1 &= ~(1<<2);
-
-    /* Configure Clock source as  System Clock */
-    SSI0->CC &= ~(0xF<<0);
-
-    /* Configure Prescalar for SPI0 module as 2 */
-    SSI0->CPSR = 2;
-
-    /* Configure the Serial Clock rate of SPI0 module as 1MHz */
-    SSI0->CR0 |= 7 << 8;
-
-    /* Select Freescale mode with CPOL = 0 and CPHA = 0*/
-    SSI0->CR0 &= ~(3<<4); // Frescale Mode
-    SSI0->CR0 &= ~(3<<6); // CPOL and CPHA
-
-    /* Configure the Data size in the Frame as 8 bits*/
-    SSI0->CR0 |= 7;
-
-    /* Enable SPI0 module */
-    SSI0->CR1 |= (1<<1);
+    return retval;
 }
 
-void SPI_Send(uint16_t *tx_buf, uint32_t len)
+static uint32_t SPI_setSerialClock(SPI_Module_e mod, uint32_t clkFreq)
 {
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max));
+    
+    uint32_t Actual_ClockFreq = 0;
+
+    /* Get the Base Address of the SPI module */
+    SSI0_Type* base = SPI_getBase(mod);
+
+    /* Configure Clock source as System Clock */
+    base->CC &= ~(0xF<<0);
+
+    /* Configure Prescalar for SPI module as 2 */
+    base->CPSR = 2;
+
+    /* Configure the Serial Clock rate of SPI module as 1MHz */
+    base->CR0 |= 7 << 8;
+
+    return Actual_ClockFreq;
+}
+
+SPI_Return_e SPI_Init(SPI_Module_e mod, SPI_config_t cfg)
+{
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max) && (cfg.SPI_Mode < SPI_Mode_Max) && (cfg.SPI_InterfaceOption < SPI_InterfaceOption_Max)
+            && (cfg.SPI_Clockfreq_Hz <= 8000000) && (cfg.SPI_FrameSize_Bits > 3) && (cfg.SPI_FrameSize_Bits <= 16)
+            && (cfg.SPI_Frame_Mode < SPI_FrameMode_Max) && (cfg.SPI_Loopback_State < SPI_LoopBack_Max));
+
+    /* Enable Clock for SPI peripheral */
+    SYSCTL->RCGCSSI |= 1 << mod;
+
+    /* Wait till the SPI peripheral is ready */
+    while(!((SYSCTL->PRSSI >> mod) & 0x01))
+    ;
+
+    /* Get the Base Address of the SPI module for Register Configuration */
+    SSI0_Type* base = SPI_getBase(mod);
+
+    /* Disable the SPI module */
+    SPI_ModuleEnable(mod, false);
+
+    /* Choose SPI module to be Master/Slave */
+    RegWrite_Bits(&base->CR1, cfg.SPI_Mode, 2, 1);
+
+    /* Set the SPI Serial Clock Frequency */
+    SPI_setSerialClock(mod, cfg.SPI_Clockfreq_Hz);
+
+    /* Select Interface Option */
+    RegWrite_Bits(&base->CR0, cfg.SPI_InterfaceOption, 4, 2);
+    
+    /* Select the Frame Mode (i.e CPOL and CPHA) */
+    RegWrite_Bits(&base->CR0, cfg.SPI_Frame_Mode, 6, 2);
+
+    /* Configure the Length of Data in Frame*/
+    RegWrite_Bits(&base->CR0, cfg.SPI_FrameSize_Bits - 1, 0, 4);
+
+    /* Enable/Disable LoobBack Mode */
+    RegWrite_Bits(&base->CR1, cfg.SPI_Loopback_State, 0, 1);
+
+    /* Enable SPI module */
+    SPI_ModuleEnable(mod, true);
+
+    return SPI_Pass;
+}
+
+SPI_Return_e SPI_Send(SPI_Module_e mod, uint16_t *tx_buf, uint32_t len)
+{
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL));
+
+    /* Get the Base Address of the SPI module for Register Configuration */
+    SSI0_Type* base = SPI_getBase(mod);
+
     /* Discard the already received value if any during previous transmission */
     volatile uint16_t junk_val;
+    
+    for(uint32_t iter = 0; iter < len; iter++)
+    {
+
+        /* Write the Data to be transmitted */
+        base->DR = tx_buf[iter];
+
+        /* Poll for the TX FIFO to be empty */
+        while(!((base->SR) & 0x1))
+        ;
+
+        /* Discard the already received value if any during previous transmission */
+        junk_val = base->DR;
+    }
+
+    /* Poll till SPI is Idle after Transmission */
+    while(((base->SR >> 4) & 0x01))
+    ;
+
+    return SPI_Pass;
+}
+
+SPI_Return_e SPI_Receive(SPI_Module_e mod, uint16_t *rx_buf, uint32_t len)
+{
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max) && (rx_buf != NULL));
+
+    /* Get the Base Address of the SPI module for Register Configuration */
+    SSI0_Type* base = SPI_getBase(mod);
+
+    /* Discard the already received value if any during previous transmission */
+    volatile uint16_t junk_val = 0;
+
+    /* Poll for the RX FIFO to be non-empty */
+    while(((base->SR >> 2) & 0x1))
+    {
+        /* Discard the already received value if any during previous transmission */
+        junk_val = base->DR;
+    }
+
+    for(uint32_t iter = 0; iter < len; iter++)
+    {
+        /* Poll for the TX FIFO to be empty */
+        while(!((base->SR) & 0x1))
+        ;
+
+        /* Write the Dummy Data to be transmitted */
+        base->DR = 0x00;
+
+        /* Poll for the RX FIFO to be non-empty */
+        while(!((base->SR >> 2) & 0x1))
+        ;
+
+        /* Read the Data from Buffer */
+        rx_buf[iter] = base->DR;
+    }
+
+    /* Poll till SPI is Idle after Transmission */
+    while(((base->SR >> 4) & 0x01))
+    ;
+
+    return SPI_Pass;
+}
+
+SPI_Return_e SPI_SendReceive(SPI_Module_e mod, uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
+{
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL) && (rx_buf != NULL));
 
     for(uint32_t iter = 0; iter < len; iter++)
     {
@@ -49,57 +185,6 @@ void SPI_Send(uint16_t *tx_buf, uint32_t len)
         ;
 
         /* Write the Data to be transmitted */
-        SSI0->DR = tx_buf[iter];
-        
-        /* Poll for the RX FIFO to be non-empty */
-        while(!((SSI0->SR >> 2) & 0x1))
-        ;
-
-        /* Discard the already received value if any during previous transmission */
-        junk_val = SSI0->DR;
-    }
-
-    /* Poll till SPI0 is Idle after Transmission */
-    while(((SSI0->SR >> 4) & 0x01))
-    ;
-}
-
-void SPI_Receive(uint16_t *rx_buf, uint32_t len)
-{
-    /* Discard the already received value if any during previous transmission */
-    volatile uint16_t junk_val = SSI0->DR;
-
-    for(uint32_t iter = 0; iter < len; iter++)
-    {
-        /* Poll for the TX FIFO to be empty */
-        while(!((SSI0->SR) & 0x1))
-        ;
-
-        /* Write the Dummy Data to be transmitted */
-        SSI0->DR = 0x00;
-
-        /* Poll for the RX FIFO to be non-empty */
-        while(!((SSI0->SR >> 2) & 0x1))
-        ;
-
-        /* Read the Data from Buffer */
-        rx_buf[iter] = SSI0->DR;
-    }
-
-    /* Poll till SPI0 is Idle after Transmission */
-    while(((SSI0->SR >> 4) & 0x01))
-    ;
-}
-
-void SPI_Transaction(uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
-{
-    for(uint32_t iter = 0; iter < len; iter++)
-    {
-        /* Poll for the TX FIFO to be empty */
-        while(!((SSI0->SR) & 0x1))
-        ;
-
-        /* Write the Dummy Data to be transmitted */
         SSI0->DR = tx_buf[iter];
 
         /* Poll for the RX FIFO to be non-empty */
@@ -110,7 +195,57 @@ void SPI_Transaction(uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
         rx_buf[iter] = SSI0->DR;
     } 
     
-    /* Poll till SPI0 is Idle after Transmission */
+    /* Poll till SPI is Idle after Transmission */
     while(((SSI0->SR >> 4) & 0x01))
     ;
+
+    return SPI_Pass;
+}
+
+SPI_Return_e SPI_DeInit(SPI_Module_e mod)
+{
+    /* Reset the SPI Module */
+    SPI_ModuleReset(mod);
+
+    /* Disable the SPI Module */
+    SPI_ModuleEnable(mod, false);
+}
+
+SPI_Return_e SPI_ModuleReset(SPI_Module_e mod)
+{
+    /* Check the Preconditions */
+    ASSERT((mod < SPI_Module_Max));
+
+    /* Reset the SPI Module */
+    SYSCTL->SRSSI |= 1<<mod; 
+    SYSCTL->SRSSI &= ~(1<<mod); 
+
+    /* Wait till the SPI0 peripheral is ready */
+    while(!((SYSCTL->PRSSI >> mod) & 0x01))
+    ;
+}
+
+SPI_Return_e SPI_ModuleEnable(SPI_Module_e mod, bool status)
+{
+    /* Check the Preconditions */
+    ASSERT(mod < SPI_Module_Max);
+    
+    /* Get the Base Address of the SPI module */
+    SSI0_Type* base = SPI_getBase(mod);
+
+    if(status == true)
+    {
+        /* Enable the SPI Module */
+        base->CR1 |= (1<<1);
+    }
+    else if(status == false)
+    {
+        /* Disable the SPI Module */
+        base->CR1 &= ~(1<<1);
+    }
+    else{
+        ASSERT(0); // Undefined Parameter
+    }
+
+    return SPI_Pass;
 }

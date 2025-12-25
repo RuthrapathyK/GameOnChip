@@ -5,11 +5,7 @@
 #include "../src/OS/scheduler.h"
 #include "ILI9341.h"
 
-uint16_t paramBuff[10] = {0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5, 0xA5};
 uint16_t ScanLine = 0;
-uint8_t count = 0;
-
-Disp_Pixel_type Diplay_Pixel = {0};
 
 __INLINE__ static void Disp_delayMS(uint32_t ms)
 {
@@ -42,6 +38,7 @@ void Disp_Init(void)
 {
       uint16_t selfDiag_1 = 0;
       uint16_t selfDiag_2 = 0;
+      uint16_t paramBuff[10] = {0};
 
       /* Initialize the Display Driver */
       ILI_DriverInit();
@@ -116,45 +113,4 @@ void Disp_sendPixels(Disp_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_sta
 
       /* Send the Pixel data to Driver IC */
       ILI_MemWrite_18bit(&t_pxl_dat, length);
-}
-void Disp_Run(void)
-{
-     count %= 5;
-
-     switch(count)
-     {
-      case 0:
-            Diplay_Pixel.Pixel_Red = 63;
-            Diplay_Pixel.Pixel_Green = 0;
-            Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
-            break;
-      case 1:
-            Diplay_Pixel.Pixel_Red = 0;
-            Diplay_Pixel.Pixel_Green = 0;
-            Diplay_Pixel.Pixel_Blue = 63;
-            Disp_sendPixels(&Diplay_Pixel, 0, 160, 240 * 160);
-            break;
-      case 2:
-            Diplay_Pixel.Pixel_Red = 0;
-            Diplay_Pixel.Pixel_Green = 63;
-            Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
-            break;
-      case 3:
-            Diplay_Pixel.Pixel_Red = 0;
-            Diplay_Pixel.Pixel_Green = 0;
-            Diplay_Pixel.Pixel_Blue = 0;
-            Disp_sendPixels(&Diplay_Pixel, 0, 160, 240 * 160);
-            break;
-      case 4:
-            Diplay_Pixel.Pixel_Red = 63;
-            Diplay_Pixel.Pixel_Green = 63;
-            Diplay_Pixel.Pixel_Blue = 63;
-            Disp_sendPixels(&Diplay_Pixel, 0, 0, 240 * 160);
-            break;
-      default:
-            break;            
-     }
-     count++;
 }

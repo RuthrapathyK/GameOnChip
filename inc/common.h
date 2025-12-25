@@ -14,6 +14,8 @@
 
 #define __INLINE__ inline __attribute__((always_inline))
 
+void RegWrite_Bits(volatile uint32_t * reg, uint32_t reg_val, uint8_t start_bit, uint8_t bit_length);
+
 #define ASSERT(x) { \
   if(!(x)){ \
     __asm("BKPT");\

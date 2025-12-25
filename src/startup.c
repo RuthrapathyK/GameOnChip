@@ -339,5 +339,5 @@ void UsageFault_handler(void)
  */
 void PendSV_handler(void)
 {
-  
+  while(1);
 }
