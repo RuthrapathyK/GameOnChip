@@ -47,7 +47,7 @@ typedef enum{
 typedef struct{
     SPI_Mode_e SPI_Mode;
     SPI_InterfaceOption_e SPI_InterfaceOption;
-    uint32_t SPI_Clockfreq_Hz;
+    int32_t SPI_BitRate_Hz;
     uint8_t SPI_FrameSize_Bits;
     SPI_FrameMode_e SPI_Frame_Mode;
     SPI_Loopback_e SPI_Loopback_State;

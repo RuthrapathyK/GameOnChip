@@ -33,24 +33,86 @@ static SSI0_Type* SPI_getBase(SPI_Module_e mod)
     return retval;
 }
 
-static uint32_t SPI_setSerialClock(SPI_Module_e mod, uint32_t clkFreq)
+__INLINE__ static int32_t SPI_calcBitRate(uint32_t sys_clk, uint32_t precalar, uint32_t divider)
+{
+    /* Formula: SSInClk = SysClk / (CPSDVSR * (1 + SCR)) */
+    return (sys_clk / (precalar * divider));
+}
+
+static int32_t SPI_getPrescalarDivider(int32_t Expected_BitRate, uint32_t *Best_CPSR, uint32_t *Best_SCR)
+{
+    int32_t t_BitRate = 0;
+    int32_t t_Error = 0;
+    int32_t Best_Error = 0x7FFFFFFF;
+    int32_t Best_BitRate = 0;
+    
+    for(uint32_t t_cpsr = 2; t_cpsr < 255; t_cpsr += 2)
+    {
+        for(uint32_t t_scr = 1; t_scr <= 256; t_scr++)
+        {
+            /* Calculate the Bit Rate */
+            t_BitRate = SPI_calcBitRate(SYSTEM_CLOCK_FREQ, t_cpsr, t_scr);
+
+            /* Calculate Error between Expected and Calculated Bit Rate */
+            t_Error = Expected_BitRate - t_BitRate;
+            
+            /* Take the Absolute Value of Error */
+            if(t_Error < 0)
+                t_Error = -t_Error;
+            
+            /* Check if the Expected BitRate is found */
+            if(t_Error == 0)
+            {
+                /* Copy the Precalar and Divider Values */
+                *Best_CPSR = t_cpsr;
+                *Best_SCR = t_scr;
+                Best_BitRate = t_BitRate;
+                
+                /* Exit the Iteration and Return the Actual BitRate */
+                return Best_BitRate;
+            }
+            /* Check if the Error between existing and Calculated Bit Rate is low */
+            else if(t_Error < Best_Error)
+            {
+                /* Copy the Precalar, Diver, current Best BitRate and its error and continue the Iteration */ 
+                *Best_CPSR = t_cpsr;
+                *Best_SCR = t_scr;
+                Best_BitRate = t_BitRate;                
+                Best_Error = t_Error;
+            }
+            else
+            {
+                /* Continue the Iteration */
+            }
+        }
+    }
+
+    return Best_BitRate;
+}
+
+static uint32_t SPI_setBitRate(SPI_Module_e mod, int32_t clkFreq)
 {
     /* Check the Preconditions */
     ASSERT((mod < SPI_Module_Max));
-    
-    uint32_t Actual_ClockFreq = 0;
+
+    int32_t Actual_ClockFreq = 0;
+    uint32_t Prescalar_val = 0;
+    uint32_t Divider_val = 0;
 
     /* Get the Base Address of the SPI module */
     SSI0_Type* base = SPI_getBase(mod);
 
     /* Configure Clock source as System Clock */
-    base->CC &= ~(0xF<<0);
+    RegWrite_Bits(&base->CC, 0x0, 0, 4);
 
-    /* Configure Prescalar for SPI module as 2 */
-    base->CPSR = 2;
+    /* Derive the Precalar and Divider values */
+    Actual_ClockFreq = SPI_getPrescalarDivider(clkFreq, &Prescalar_val, &Divider_val);
 
-    /* Configure the Serial Clock rate of SPI module as 1MHz */
-    base->CR0 |= 7 << 8;
+    /* Configure Prescalar for SPI module */
+    base->CPSR = Prescalar_val;
+
+    /* Configure the Divider value for the Required BitRate  */
+    RegWrite_Bits(&base->CR0, Divider_val - 1, 8, 8);
 
     return Actual_ClockFreq;
 }
@@ -59,7 +121,7 @@ SPI_Return_e SPI_Init(SPI_Module_e mod, SPI_config_t cfg)
 {
     /* Check the Preconditions */
     ASSERT((mod < SPI_Module_Max) && (cfg.SPI_Mode < SPI_Mode_Max) && (cfg.SPI_InterfaceOption < SPI_InterfaceOption_Max)
-            && (cfg.SPI_Clockfreq_Hz <= 8000000) && (cfg.SPI_FrameSize_Bits > 3) && (cfg.SPI_FrameSize_Bits <= 16)
+            && (cfg.SPI_BitRate_Hz <= 8000000) && (cfg.SPI_FrameSize_Bits > 3) && (cfg.SPI_FrameSize_Bits <= 16)
             && (cfg.SPI_Frame_Mode < SPI_FrameMode_Max) && (cfg.SPI_Loopback_State < SPI_LoopBack_Max));
 
     /* Enable Clock for SPI peripheral */
@@ -79,7 +141,8 @@ SPI_Return_e SPI_Init(SPI_Module_e mod, SPI_config_t cfg)
     RegWrite_Bits(&base->CR1, cfg.SPI_Mode, 2, 1);
 
     /* Set the SPI Serial Clock Frequency */
-    SPI_setSerialClock(mod, cfg.SPI_Clockfreq_Hz);
+    if(cfg.SPI_BitRate_Hz != SPI_setBitRate(mod, cfg.SPI_BitRate_Hz))
+        ASSERT(0); // Expected Clock Frequency and Best Clock Frequency are not matching
 
     /* Select Interface Option */
     RegWrite_Bits(&base->CR0, cfg.SPI_InterfaceOption, 4, 2);

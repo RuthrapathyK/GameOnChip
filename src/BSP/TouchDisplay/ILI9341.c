@@ -186,7 +186,7 @@ void ILI_DriverInit(void)
       SPI_config_t ILI_SPI_Config = {
             .SPI_Mode = SPI_Master,
             .SPI_InterfaceOption = SPI_Freescale,
-            .SPI_Clockfreq_Hz = 1000000,
+            .SPI_BitRate_Hz = 1000000,
             .SPI_FrameSize_Bits = 8,
             .SPI_Frame_Mode = SPI_cpha_0_cpol_0,
             .SPI_Loopback_State = SPI_LoopBack_Disable
