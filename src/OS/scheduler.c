@@ -246,7 +246,7 @@ void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec)
   PrioTask_Table[CurTask_Idx].nxtSchedTime = *startStamp; 
 
   /* Check if the Timer is already expired */
-  if(PrioTask_Table[CurTask_Idx].nxtSchedTime > getSystemTime())
+  if(PrioTask_Table[CurTask_Idx].nxtSchedTime >= getSystemTime())
   {
       /* Change the task state to Sleep */
       PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep_Delay;

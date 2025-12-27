@@ -99,7 +99,7 @@ void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t
       ILI_writeReg(ILI_CMD_RASET, t_buf, 32);
 
 }
-void Disp_sendPixels(Disp_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_start, uint32_t length)
+void Disp_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length)
 {
       ILI_Pixel_type t_pxl_dat = {0};
 
@@ -107,9 +107,9 @@ void Disp_sendPixels(Disp_Pixel_type *Pixel, uint32_t col_start, uint32_t pg_sta
       Disp_setPixel_Pointer(col_start, pg_start, 240, 320);
 
       /* Map the Display data to ILI9341 driver IC */
-      t_pxl_dat.ILI_PixRed = Pixel->Pixel_Red;
-      t_pxl_dat.ILI_PixBlue = Pixel->Pixel_Blue;
-      t_pxl_dat.ILI_PixGreen = Pixel->Pixel_Green;
+      t_pxl_dat.ILI_PixRed = (pixelVal >> 16) & 0x3F;
+      t_pxl_dat.ILI_PixGreen = (pixelVal >> 8) & 0x3F;
+      t_pxl_dat.ILI_PixBlue = pixelVal & 0x3F;
 
       /* Send the Pixel data to Driver IC */
       ILI_MemWrite_18bit(&t_pxl_dat, length);
