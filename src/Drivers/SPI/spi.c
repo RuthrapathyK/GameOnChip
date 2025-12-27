@@ -50,39 +50,41 @@ static int32_t SPI_getPrescalarDivider(int32_t Expected_BitRate, uint32_t *Best_
     {
         for(uint32_t t_scr = 1; t_scr <= 256; t_scr++)
         {
-            /* Calculate the Bit Rate */
+            /* Calculate Bit Rate */
             t_BitRate = SPI_calcBitRate(SYSTEM_CLOCK_FREQ, t_cpsr, t_scr);
 
             /* Calculate Error between Expected and Calculated Bit Rate */
             t_Error = Expected_BitRate - t_BitRate;
             
-            /* Take the Absolute Value of Error */
+            /* Take Absolute Value of Error */
             if(t_Error < 0)
                 t_Error = -t_Error;
             
-            /* Check if the Expected BitRate is found */
+            /* Check if Expected BitRate is found */
             if(t_Error == 0)
             {
-                /* Copy the Precalar and Divider Values */
+                /* Copy Precalar and Divider Values */
                 *Best_CPSR = t_cpsr;
                 *Best_SCR = t_scr;
                 Best_BitRate = t_BitRate;
                 
-                /* Exit the Iteration and Return the Actual BitRate */
+                /* Exit Iteration and Return Actual BitRate */
                 return Best_BitRate;
             }
-            /* Check if the Error between existing and Calculated Bit Rate is low */
+            /* Check if Error between existing and Calculated Bit Rate is low */
             else if(t_Error < Best_Error)
             {
-                /* Copy the Precalar, Diver, current Best BitRate and its error and continue the Iteration */ 
+                /* Copy Prescalar, Diver, current Best BitRate and its error */ 
                 *Best_CPSR = t_cpsr;
                 *Best_SCR = t_scr;
                 Best_BitRate = t_BitRate;                
                 Best_Error = t_Error;
+
+                /* Continue Iteration */
             }
             else
             {
-                /* Continue the Iteration */
+                /* Continue Iteration */
             }
         }
     }
@@ -165,7 +167,7 @@ SPI_Return_e SPI_Init(SPI_Module_e mod, SPI_config_t cfg)
 SPI_Return_e SPI_Send(SPI_Module_e mod, uint16_t *tx_buf, uint32_t len)
 {
     /* Check the Preconditions */
-    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL));
+    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL) && (len > 0));
 
     /* Get the Base Address of the SPI module for Register Configuration */
     SSI0_Type* base = SPI_getBase(mod);
@@ -175,12 +177,15 @@ SPI_Return_e SPI_Send(SPI_Module_e mod, uint16_t *tx_buf, uint32_t len)
     
     for(uint32_t iter = 0; iter < len; iter++)
     {
+        /* Poll for the TX FIFO to be empty */
+        while(!((base->SR) & 0x1))
+        ;
 
         /* Write the Data to be transmitted */
         base->DR = tx_buf[iter];
 
-        /* Poll for the TX FIFO to be empty */
-        while(!((base->SR) & 0x1))
+        /* Poll for the RX FIFO to be non-empty */
+        while(!((base->SR >> 2) & 0x1))
         ;
 
         /* Discard the already received value if any during previous transmission */
@@ -197,7 +202,7 @@ SPI_Return_e SPI_Send(SPI_Module_e mod, uint16_t *tx_buf, uint32_t len)
 SPI_Return_e SPI_Receive(SPI_Module_e mod, uint16_t *rx_buf, uint32_t len)
 {
     /* Check the Preconditions */
-    ASSERT((mod < SPI_Module_Max) && (rx_buf != NULL));
+    ASSERT((mod < SPI_Module_Max) && (rx_buf != NULL) && (len > 0));
 
     /* Get the Base Address of the SPI module for Register Configuration */
     SSI0_Type* base = SPI_getBase(mod);
@@ -239,27 +244,40 @@ SPI_Return_e SPI_Receive(SPI_Module_e mod, uint16_t *rx_buf, uint32_t len)
 SPI_Return_e SPI_SendReceive(SPI_Module_e mod, uint16_t *tx_buf, uint16_t *rx_buf, uint32_t len)
 {
     /* Check the Preconditions */
-    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL) && (rx_buf != NULL));
+    ASSERT((mod < SPI_Module_Max) && (tx_buf != NULL) && (rx_buf != NULL) && (len > 0));
+
+    /* Get the Base Address of the SPI module for Register Configuration */
+    SSI0_Type* base = SPI_getBase(mod);
+
+    /* Discard the already received value if any during previous transmission */
+    volatile uint16_t junk_val = 0;
+
+    /* Poll for the RX FIFO to be non-empty */
+    while(((base->SR >> 2) & 0x1))
+    {
+        /* Discard the already received value if any during previous transmission */
+        junk_val = base->DR;
+    }
 
     for(uint32_t iter = 0; iter < len; iter++)
     {
         /* Poll for the TX FIFO to be empty */
-        while(!((SSI0->SR) & 0x1))
+        while(!((base->SR) & 0x1))
         ;
 
         /* Write the Data to be transmitted */
-        SSI0->DR = tx_buf[iter];
+        base->DR = tx_buf[iter];
 
         /* Poll for the RX FIFO to be non-empty */
-        while(!((SSI0->SR) & 0x1))
+        while(!((base->SR >> 2) & 0x1))
         ;
 
         /* Read the Data from Buffer */
-        rx_buf[iter] = SSI0->DR;
+        rx_buf[iter] = base->DR;
     } 
     
     /* Poll till SPI is Idle after Transmission */
-    while(((SSI0->SR >> 4) & 0x01))
+    while(((base->SR >> 4) & 0x01))
     ;
 
     return SPI_Pass;
@@ -272,6 +290,8 @@ SPI_Return_e SPI_DeInit(SPI_Module_e mod)
 
     /* Disable the SPI Module */
     SPI_ModuleEnable(mod, false);
+
+    return SPI_Pass;
 }
 
 SPI_Return_e SPI_ModuleReset(SPI_Module_e mod)
@@ -286,6 +306,8 @@ SPI_Return_e SPI_ModuleReset(SPI_Module_e mod)
     /* Wait till the SPI0 peripheral is ready */
     while(!((SYSCTL->PRSSI >> mod) & 0x01))
     ;
+
+    return SPI_Pass;
 }
 
 SPI_Return_e SPI_ModuleEnable(SPI_Module_e mod, bool status)
