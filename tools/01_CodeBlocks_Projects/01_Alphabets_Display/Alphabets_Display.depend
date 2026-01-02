@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1767373646 source:d:\embedded_systems\code_blocks\alphabets_display\font.c
+	"font.h"
+	"display.h"
+
+1766911644 d:\embedded_systems\code_blocks\alphabets_display\display.h
+	<stdint.h>
+
+1767368540 d:\embedded_systems\code_blocks\alphabets_display\font.h
+	"display.h"
+
+1767373197 source:d:\embedded_systems\code_blocks\alphabets_display\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	"display.h"
+	"font.h"
+
+1766911443 source:d:\embedded_systems\code_blocks\alphabets_display\display.c
+	"display.h"
+	<stdio.h>
+	<stdint.h>
+

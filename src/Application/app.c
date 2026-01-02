@@ -6,17 +6,23 @@
 #include "../OS/scheduler.h"
 #include "app.h"
 
-#define ALPHABET_FONT_SIZE 30
 
 void App_MultiColour_Display(void);
 
 uint32_t App_TaskStack[APP_TASK_STACK_SIZE]={0};
-Disp_Pixel_type Diplay_Pixel = {0};
 
 
 void App_Task(void)
 {
-  uint32_t cur_ptr = 0;
+    Alphabet_PixPtr_t PixPointer = {
+        .rPtr = 0,
+        .cPtr = 0};
+
+    Alphabet_FontProp_t PixProperty = {
+        .Font_Color = 0xFF0000,
+        .Font_Size = 10,
+        .Font_Thickness = 2,
+        .Font_Spacing = 10};
 
   Disp_Init();
   /* Write Black in Complete Screen */
@@ -24,23 +30,20 @@ void App_Task(void)
 
   while(1)
   {
-      PrintAlphabet_N(cur_ptr, 0xFF0000, ALPHABET_FONT_SIZE);
-      cur_ptr += ALPHABET_FONT_SIZE;
+    PixPointer.rPtr = 0;
+    PixPointer.cPtr = 0;
+    PrintAlphabet_H(&PixPointer, &PixProperty);
 
-      PrintAlphabet_I(cur_ptr, 0x00FF00, ALPHABET_FONT_SIZE);
-      cur_ptr += ALPHABET_FONT_SIZE;
+    PixPointer.rPtr += PixProperty.Font_Size;
+    PrintAlphabet_I(&PixPointer, &PixProperty);
 
-      PrintAlphabet_T(cur_ptr, 0x0000FF, ALPHABET_FONT_SIZE);
-      cur_ptr += ALPHABET_FONT_SIZE;
+    PixPointer.cPtr += PixProperty.Font_Size;
+    PixPointer.rPtr = 0;
+    PrintAlphabet_I(&PixPointer, &PixProperty);
 
-      PrintAlphabet_H(cur_ptr, 0xFF0000, ALPHABET_FONT_SIZE);
-      cur_ptr += ALPHABET_FONT_SIZE;
+    PixPointer.rPtr += PixProperty.Font_Size;
+    PrintAlphabet_T(&PixPointer, &PixProperty);
 
-      PrintAlphabet_Y(cur_ptr, 0x00FF00, ALPHABET_FONT_SIZE);
-      cur_ptr += ALPHABET_FONT_SIZE;
-
-      PrintAlphabet_A(cur_ptr, 0x0000FF, ALPHABET_FONT_SIZE);
-      cur_ptr = 0;
   }
 }
 
