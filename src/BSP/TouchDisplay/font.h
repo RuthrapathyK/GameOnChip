@@ -20,7 +20,8 @@ void PrintAlphabet_H(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_N(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_I(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_T(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
-void PrintAlphabet_A(uint32_t cur_ptr, uint32_t font_color, uint32_t font_size);
-void PrintAlphabet_Y(uint32_t cur_ptr, uint32_t font_color, uint32_t font_size);
+void PrintAlphabet_A(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
+void PrintAlphabet_Y(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
+void PrintWord(char *word, Alphabet_PixPtr_t *PixPointer, Alphabet_FontProp_t *PixProperty);
 
 #endif

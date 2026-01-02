@@ -190,6 +190,62 @@ void PrintAlphabet_Y(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp)
     }
 
     /* Vertical Line */
-    Draw_StarightLine(Row_Mid, Row_Mid+fontProp->Font_Thickness+1, Column_Mid, Column_Max, fontProp->Font_Color);
+    if(fontProp->Font_Thickness % 2 == 0)
+        Draw_StarightLine(Row_Mid, Row_Mid+fontProp->Font_Thickness, Column_Mid, Column_Max, fontProp->Font_Color);
+    else
+        Draw_StarightLine(Row_Mid, Row_Mid+fontProp->Font_Thickness+1, Column_Mid, Column_Max, fontProp->Font_Color);
 
+}
+void PrintWord(char *word, Alphabet_PixPtr_t *PixPointer, Alphabet_FontProp_t *PixProperty)
+{
+    while(*word)
+    {
+        switch(*word)
+        {
+        case 'N':
+            PrintAlphabet_N(PixPointer, PixProperty);
+            break;
+        case 'I':
+            PrintAlphabet_I(PixPointer, PixProperty);
+            break;
+        case 'T':
+            PrintAlphabet_T(PixPointer, PixProperty);
+            break;
+        case 'H':
+            PrintAlphabet_H(PixPointer, PixProperty);
+            break;
+        case 'A':
+            PrintAlphabet_A(PixPointer, PixProperty);
+            break;
+        case 'Y':
+            PrintAlphabet_Y(PixPointer, PixProperty);
+            break;
+        case ' ':
+            /* Don't print anything - Increment the Row Pointer */
+            break;
+        case '\n':
+            /* Exceed the Maximum Row resolution Intentionally */
+            PixPointer->rPtr = PIXELTABLE_RESOLUTION_ROW;
+            break;
+        default:
+            while(1);
+        }
+        /* Increment the Row Pointer */
+        PixPointer->rPtr += PixProperty->Font_Size;
+
+        /* If Row Pointer Exceeds the Resolution then Wrap up to Next Column */
+        if(PixPointer->rPtr > PIXELTABLE_RESOLUTION_ROW - PixProperty->Font_Size)
+        {
+            PixPointer->rPtr = 0;
+            PixPointer->cPtr += PixProperty->Font_Size;
+        }
+
+        /* If Column Pointer also Exceeded the pause the Execution */
+        if(PixPointer->cPtr > PIXELTABLE_RESOLUTION_COULUMN - PixProperty->Font_Size)
+        {
+            while(1);
+        }
+
+        word++;
+    }
 }

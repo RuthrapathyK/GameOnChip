@@ -22,5 +22,6 @@ void PrintAlphabet_I(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_T(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_A(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
 void PrintAlphabet_Y(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp);
+void PrintWord(char *word, Alphabet_PixPtr_t *PixPointer, Alphabet_FontProp_t *PixProperty);
 
 #endif

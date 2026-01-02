@@ -19,10 +19,10 @@ void App_Task(void)
         .cPtr = 0};
 
     Alphabet_FontProp_t PixProperty = {
-        .Font_Color = 0xFF0000,
-        .Font_Size = 10,
+        .Font_Color = 0x0000FF,
+        .Font_Size =40,
         .Font_Thickness = 2,
-        .Font_Spacing = 10};
+        .Font_Spacing = 1};
 
   Disp_Init();
   /* Write Black in Complete Screen */
@@ -30,20 +30,10 @@ void App_Task(void)
 
   while(1)
   {
-    PixPointer.rPtr = 0;
-    PixPointer.cPtr = 0;
-    PrintAlphabet_H(&PixPointer, &PixProperty);
-
-    PixPointer.rPtr += PixProperty.Font_Size;
-    PrintAlphabet_I(&PixPointer, &PixProperty);
-
-    PixPointer.cPtr += PixProperty.Font_Size;
-    PixPointer.rPtr = 0;
-    PrintAlphabet_I(&PixPointer, &PixProperty);
-
-    PixPointer.rPtr += PixProperty.Font_Size;
-    PrintAlphabet_T(&PixPointer, &PixProperty);
-
+      PrintWord("NITHYA\n", &PixPointer, &PixProperty); 
+      PixProperty.Font_Size -= 4;
+      if(PixProperty.Font_Size < 4)
+             PixProperty.Font_Size = 4;
   }
 }
 
