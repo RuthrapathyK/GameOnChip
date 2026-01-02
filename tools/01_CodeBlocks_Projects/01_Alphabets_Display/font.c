@@ -158,33 +158,38 @@ void PrintAlphabet_A(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp)
     uint16_t Column_Max = p->cPtr + fontProp->Font_Size - fontProp->Font_Spacing;
     uint16_t Column_Mid = ((Column_Max - Column_Min)/2) + p->cPtr;
 
-    Draw_CrossLine(Row_Mid, Row_Min, Column_Min, Column_Max, fontProp->Font_Color);
-    Draw_CrossLine(Row_Mid, Row_Max, Column_Min, Column_Max, fontProp->Font_Color);
+    /* Cross Line */
+    for(uint16_t thickIter = 0; thickIter < fontProp->Font_Thickness; thickIter++)
+    {
+        Draw_CrossLine(Row_Mid + thickIter, Row_Min, Column_Min, Column_Mid, fontProp->Font_Color);
+        Draw_CrossLine(Row_Mid + thickIter, Row_Max, Column_Min, Column_Mid, fontProp->Font_Color);
+    }
 
-    Draw_CrossLine(Row_Mid + 1, Row_Min, Column_Min, Column_Max, fontProp->Font_Color);
-    Draw_CrossLine(Row_Mid + 1, Row_Max, Column_Min, Column_Max, fontProp->Font_Color);
+    /* Vertical Lines */
+    Draw_StarightLine(Row_Min, Row_Min+fontProp->Font_Thickness, Column_Mid, Column_Max, fontProp->Font_Color);
+    Draw_StarightLine(Row_Max-fontProp->Font_Thickness, Row_Max, Column_Mid, Column_Max, fontProp->Font_Color);
+
+    /* Horizontal Line */
+    Draw_StarightLine(Row_Min, Row_Max, Column_Mid, Column_Mid+fontProp->Font_Thickness, fontProp->Font_Color);
 }
 
-//void PrintAlphabet_Y(uint32_t cur_ptr, uint32_t font_color, uint32_t font_size)
-//{
-//    uint32_t center = font_size / 2;
-//
-//    // Left diagonal line from top-left to center
-//    for(uint8_t iter = 0; iter < center - ALPHABET_SPACING; iter++)
-//    {
-//        Disp_sendPixels(font_color, iter, cur_ptr + ALPHABET_SPACING + iter, 2);
-//    }
-//
-//    // Right diagonal line from top-right to center
-//    for(uint8_t iter = 0; iter < center - ALPHABET_SPACING; iter++)
-//    {
-//        Disp_sendPixels(font_color, iter, cur_ptr + font_size - ALPHABET_SPACING - 1 - iter, 2);
-//    }
-//
-//    // Center vertical line downward
-//    for(uint8_t iter = center - 2; iter < font_size - ALPHABET_SPACING - 1; iter++)
-//    {
-//        Disp_sendPixels(font_color, iter, cur_ptr + center - 1, 3);
-//        Disp_sendPixels(font_color, iter, cur_ptr + center, 3);
-//    }
-//}
+void PrintAlphabet_Y(Alphabet_PixPtr_t * p, Alphabet_FontProp_t * fontProp)
+{
+    uint16_t Row_Min = p->rPtr + fontProp->Font_Spacing;
+    uint16_t Row_Max = p->rPtr + fontProp->Font_Size - fontProp->Font_Spacing;
+    uint16_t Row_Mid = ((Row_Max - Row_Min)/2) + p->rPtr;
+    uint16_t Column_Min = p->cPtr + fontProp->Font_Spacing;
+    uint16_t Column_Max = p->cPtr + fontProp->Font_Size - fontProp->Font_Spacing;
+    uint16_t Column_Mid = ((Column_Max - Column_Min)/2) + p->cPtr;
+
+    /* Cross Line */
+    for(uint16_t thickIter = 0; thickIter <= fontProp->Font_Thickness; thickIter++)
+    {
+        Draw_CrossLine(Row_Min + thickIter, Row_Mid +2, Column_Min, Column_Mid +2, fontProp->Font_Color);
+        Draw_CrossLine(Row_Max - thickIter, Row_Mid, Column_Min, Column_Mid +2, fontProp->Font_Color);
+    }
+
+    /* Vertical Line */
+    Draw_StarightLine(Row_Mid, Row_Mid+fontProp->Font_Thickness+1, Column_Mid, Column_Max, fontProp->Font_Color);
+
+}
