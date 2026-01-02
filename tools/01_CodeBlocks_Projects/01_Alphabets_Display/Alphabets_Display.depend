@@ -21,3 +21,25 @@
 	<stdio.h>
 	<stdint.h>
 
+1766911443 source:d:\embedded_systems\02_git_repos\gameonchip\tools\01_codeblocks_projects\01_alphabets_display\display.c
+	"display.h"
+	<stdio.h>
+	<stdint.h>
+
+1767375529 d:\embedded_systems\02_git_repos\gameonchip\tools\01_codeblocks_projects\01_alphabets_display\display.h
+	<stdint.h>
+
+1767375435 source:d:\embedded_systems\02_git_repos\gameonchip\tools\01_codeblocks_projects\01_alphabets_display\font.c
+	"font.h"
+	"display.h"
+
+1767368540 d:\embedded_systems\02_git_repos\gameonchip\tools\01_codeblocks_projects\01_alphabets_display\font.h
+	"display.h"
+
+1767375505 source:d:\embedded_systems\02_git_repos\gameonchip\tools\01_codeblocks_projects\01_alphabets_display\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	"display.h"
+	"font.h"
+

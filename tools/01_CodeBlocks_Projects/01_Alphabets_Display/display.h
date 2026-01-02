@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define PIXELTABLE_RESOLUTION_COULUMN 50
-#define PIXELTABLE_RESOLUTION_ROW 50
+#define PIXELTABLE_RESOLUTION_COULUMN 240
+#define PIXELTABLE_RESOLUTION_ROW 320
 
 void Disp_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length);
 void PixelTable_Init(char c);

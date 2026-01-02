@@ -12,7 +12,7 @@ int main()
 
     Alphabet_FontProp_t PixProperty = {
         .Font_Color = 0xFF0000,
-        .Font_Size = 10,
+        .Font_Size = 20,
         .Font_Thickness = 2,
         .Font_Spacing = 1};
 
@@ -35,8 +35,9 @@ int main()
     PixPointer.rPtr += PixProperty.Font_Size;
     PrintAlphabet_T(&PixPointer, &PixProperty);
 
-    PixPointer.rPtr += PixProperty.Font_Size;
-//    PrintAlphabet_A(&PixPointer, &PixProperty);
+    PixPointer.cPtr += PixProperty.Font_Size;
+    PixPointer.rPtr = 0;
+    PrintAlphabet_A(&PixPointer, &PixProperty);
 
     PixelTable_Print();
     return 0;
