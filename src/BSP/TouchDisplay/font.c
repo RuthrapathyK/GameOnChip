@@ -8,7 +8,7 @@ void Draw_StarightLine(uint16_t rStart, uint16_t rEnd, uint16_t cStart, uint16_t
     {
         for(uint16_t cIter = cStart; cIter < cEnd; cIter++)
         {
-            Disp_sendPixels(color, cIter, rIter, 1);
+            DISP_sendPixels(color, cIter, rIter, 1);
         }
     }
 }
@@ -21,7 +21,7 @@ void Draw_CrossLine(uint16_t rStart, uint16_t rEnd, uint16_t cStart, uint16_t cE
             /* Draw the Increasing Row and Increasing Column Line */
             for(uint16_t rIter = rStart, cIter = cStart; (rIter < rEnd) && (cIter < cEnd); rIter++, cIter++)
             {
-                Disp_sendPixels(color, cIter, rIter, 1);
+                DISP_sendPixels(color, cIter, rIter, 1);
             }
         }
         else if((int32_t)cEnd - (int32_t)cStart < 0)
@@ -29,7 +29,7 @@ void Draw_CrossLine(uint16_t rStart, uint16_t rEnd, uint16_t cStart, uint16_t cE
             /* Draw the Increasing Row and Decreasing Column Line */
             for(uint16_t rIter = rStart, cIter = cStart; (rIter < rEnd) && (cIter > cEnd); rIter++, cIter--)
             {
-                Disp_sendPixels(color, cIter, rIter, 1);
+                DISP_sendPixels(color, cIter, rIter, 1);
             }
         }
         else
@@ -44,7 +44,7 @@ void Draw_CrossLine(uint16_t rStart, uint16_t rEnd, uint16_t cStart, uint16_t cE
             /* Draw the Decreasing Row and Increasing Column Line */
             for(uint16_t rIter = rStart, cIter = cStart; (rIter > rEnd) && (cIter < cEnd); rIter--, cIter++)
             {
-                Disp_sendPixels(color, cIter, rIter, 1);
+                DISP_sendPixels(color, cIter, rIter, 1);
             }
         }
         else if((int32_t)cEnd - (int32_t)cStart < 0)
@@ -52,7 +52,7 @@ void Draw_CrossLine(uint16_t rStart, uint16_t rEnd, uint16_t cStart, uint16_t cE
             /* Draw the Decreasing Row and Decreasing Column Line */
             for(uint16_t rIter = rStart, cIter = cStart; (rIter > rEnd) && (cIter > cEnd); rIter--, cIter--)
             {
-                Disp_sendPixels(color, cIter, rIter, 1);
+                DISP_sendPixels(color, cIter, rIter, 1);
             }
         }
         else

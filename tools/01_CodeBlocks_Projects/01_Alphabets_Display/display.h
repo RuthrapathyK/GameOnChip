@@ -6,7 +6,7 @@
 #define PIXELTABLE_RESOLUTION_COULUMN 240
 #define PIXELTABLE_RESOLUTION_ROW 320
 
-void Disp_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length);
+void DISP_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length);
 void PixelTable_Init(char c);
 void PixelTable_Print(void);
 

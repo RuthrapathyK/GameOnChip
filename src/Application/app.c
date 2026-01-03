@@ -4,6 +4,7 @@
 #include "../BSP/TouchDisplay/display.h"
 #include "../BSP/TouchDisplay/font.h"
 #include "../OS/scheduler.h"
+#include "../BSP/Serial_Keyboard/keyboard.h"
 #include "app.h"
 
 
@@ -24,17 +25,20 @@ void App_Task(void)
         .Font_Thickness = 2,
         .Font_Spacing = 1};
 
-  Disp_Init();
-  /* Write Black in Complete Screen */
-  Disp_sendPixels(0x000000, 0, 0, 240 * 320);
 
-  while(1)
-  {
-      PrintWord("NITHYA\n", &PixPointer, &PixProperty); 
-      PixProperty.Font_Size -= 4;
-      if(PixProperty.Font_Size < 4)
-             PixProperty.Font_Size = 4;
-  }
+      DISP_Init();
+      SKEY_Init();
+
+      /* Write Black in Complete Screen */
+      DISP_sendPixels(0x000000, 0, 0, DISP_RESOLUTION_COLUMN * DISP_RESOLUTION_ROW);
+
+      uint8_t c[2] = {0};
+
+      while(1)
+      {
+            c[0] = SKEY_ReceiveChar();
+            PrintWord(c, &PixPointer, &PixProperty); 
+      }
 }
 
 void App_MultiColour_Display(void)
@@ -46,19 +50,19 @@ void App_MultiColour_Display(void)
      switch(count)
      {
       case 0:
-            Disp_sendPixels(0xFF0000, 0, 0, 240 * 160);
+            DISP_sendPixels(0xFF0000, 0, 0, 240 * 160);
             break;
       case 1:
-            Disp_sendPixels(0x0000FF, 0, 160, 240 * 160);
+            DISP_sendPixels(0x0000FF, 0, 160, 240 * 160);
             break;
       case 2:
-            Disp_sendPixels(0x00FF00, 0, 0, 240 * 160);
+            DISP_sendPixels(0x00FF00, 0, 0, 240 * 160);
             break;
       case 3:
-            Disp_sendPixels(0x000000, 0, 160, 240 * 160);
+            DISP_sendPixels(0x000000, 0, 160, 240 * 160);
             break;
       case 4:
-            Disp_sendPixels(0xFFFFFF, 0, 0, 240 * 160);
+            DISP_sendPixels(0xFFFFFF, 0, 0, 240 * 160);
             break;
       default:
             break;            

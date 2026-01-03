@@ -7,22 +7,22 @@
 
 uint16_t ScanLine = 0;
 
-__INLINE__ static void Disp_delayMS(uint32_t ms)
+__INLINE__ static void DISP_delayMS(uint32_t ms)
 {
     OS_delay(ms);
 }
 
-void Disp_setBrightness(uint8_t bright_val)
+void DISP_setBrightness(uint8_t bright_val)
 {
       uint16_t t_val =  bright_val;
 
       /* Set the Brightness Value */
       ILI_writeReg(ILI_CMD_WR_DISPLAY_BRIGHTNESS, &t_val, 8);  
       
-      Disp_delayMS(25);
+      DISP_delayMS(25);
 }
 
-uint16_t Disp_getScanLine(void)
+uint16_t DISP_getScanLine(void)
 {
    uint16_t ret_val = 0;
    uint16_t t_data[2] = {0};
@@ -34,7 +34,7 @@ uint16_t Disp_getScanLine(void)
    return ret_val;
 }
 
-void Disp_Init(void)
+void DISP_Init(void)
 {
       uint16_t selfDiag_1 = 0;
       uint16_t selfDiag_2 = 0;
@@ -48,7 +48,7 @@ void Disp_Init(void)
 
       /* Set the Display Module to Sleep Out */
       ILI_writeReg(ILI_CMD_SLPOUT, paramBuff, 0);
-      Disp_delayMS(200);
+      DISP_delayMS(200);
 
       /* Check whether the Read Diagnostic bits are inverted */
       ILI_readReg(ILI_CMD_READ_SELFDIAG_RESULT, &selfDiag_2, 8);
@@ -73,10 +73,10 @@ void Disp_Init(void)
       ILI_writeReg(ILI_CMD_DISPON, paramBuff, 0);
 
       /* Set Maximum Column Address and Page Address i.e Display Resolution */
-      Disp_setPixel_Pointer(0, 0, 240, 320);
+      DISP_setPixel_Pointer(0, 0, 240, 320);
 }
 
-void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr)
+void DISP_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t max_col_addr, uint16_t max_pg_addr)
 {
       ASSERT((max_col_addr <= 240) && (max_pg_addr <= 320) && (cur_col_addr < 240) && (cur_pg_addr < 320));
 
@@ -99,12 +99,12 @@ void Disp_setPixel_Pointer(uint16_t cur_col_addr, uint16_t cur_pg_addr, uint16_t
       ILI_writeReg(ILI_CMD_RASET, t_buf, 32);
 
 }
-void Disp_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length)
+void DISP_sendPixels(uint32_t pixelVal, uint32_t col_start, uint32_t pg_start, uint32_t length)
 {
       ILI_Pixel_type t_pxl_dat = {0};
 
       /* Set the Pixel Pointer */
-      Disp_setPixel_Pointer(col_start, pg_start, 240, 320);
+      DISP_setPixel_Pointer(col_start, pg_start, 240, 320);
 
       /* Map the Display data to ILI9341 driver IC */
       t_pxl_dat.ILI_PixRed = (pixelVal >> 16) & 0x3F;

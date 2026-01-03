@@ -18,7 +18,7 @@ int main()
 
     PixelTable_Init('.');
 
-    PrintWord("NITY", &PixPointer, &PixProperty);
+    PrintWord("NITHYA\n", &PixPointer, &PixProperty);
 
     PixelTable_Print();
     return 0;
